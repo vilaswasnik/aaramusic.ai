@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-const CORS_PROXY = 'https://corsproxy.io/?url=';
+const WORKER_URL = 'https://aaramusic-proxy.vilaswasnik.workers.dev';
 
 const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
@@ -14,8 +14,8 @@ const getLyricsBase = (): string => {
     if (hostname.includes('-8081.')) {
       return `${origin.replace('-8081.', '-3001.')}/lyrics`;
     }
-    // GitHub Pages / static host: use CORS proxy
-    return `${CORS_PROXY}${encodeURIComponent('https://api.lyrics.ovh/v1')}`;
+    // Production: use Cloudflare Worker proxy
+    return `${WORKER_URL}/lyrics`;
   }
   return 'http://localhost:3001/lyrics';
 };
