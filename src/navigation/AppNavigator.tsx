@@ -138,7 +138,7 @@ export const AppNavigator = () => {
         component={PlayerScreen}
         options={{
           presentation: 'fullScreenModal',
-          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
         }}
       />
     </Stack.Navigator>
