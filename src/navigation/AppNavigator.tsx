@@ -8,6 +8,7 @@ import { AIScreen } from '../screens/AIScreen';
 import { BollywoodScreen } from '../screens/BollywoodScreen';
 import { HollywoodScreen } from '../screens/HollywoodScreen';
 import { SouthIndianScreen } from '../screens/SouthIndianScreen';
+import { DJMixScreen } from '../screens/DJMixScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { PlayerScreen } from '../screens/PlayerScreen';
 import { colors } from '../constants/theme';
@@ -88,6 +89,16 @@ const TabNavigator = () => {
           tabBarLabel: 'South',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="disc" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="DJ Mix"
+        component={DJMixScreen}
+        options={{
+          tabBarLabel: 'DJ',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="headset" size={size} color={color} />
           ),
         }}
       />

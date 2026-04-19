@@ -271,3 +271,32 @@ export const fetchSouthIndianPlaylists = async (): Promise<{ name: string; descr
     return [];
   }
 };
+
+// DJ Mix curated playlists
+export const DJ_MIX_PLAYLISTS = [
+  { id: '4403076402', name: 'DJ Club Bangers', description: 'The hottest club DJ tracks' },
+  { id: '1996494362', name: 'EDM Festival Mix', description: 'Big room festival anthems' },
+  { id: '6388656264', name: 'Tech House', description: 'Underground tech house grooves' },
+  { id: '1282495565', name: 'Trance Classics', description: 'Euphoric trance essentials' },
+  { id: '1925105902', name: 'Deep House Chill', description: 'Deep house & chill beats' },
+  { id: '3085146642', name: 'Hip Hop DJ Mix', description: 'DJ-ready hip hop bangers' },
+];
+
+export const fetchDJMixTopSongs = async (limit: number = 30): Promise<Song[]> => {
+  return fetchPlaylistTracks('4403076402', limit);
+};
+
+export const fetchDJMixPlaylists = async (): Promise<{ name: string; description: string; songs: Song[] }[]> => {
+  try {
+    const results = await Promise.all(
+      DJ_MIX_PLAYLISTS.map(async (playlist) => {
+        const songs = await fetchPlaylistTracks(playlist.id, 15);
+        return { name: playlist.name, description: playlist.description, songs };
+      })
+    );
+    return results.filter((p) => p.songs.length > 0);
+  } catch (error) {
+    console.error('Error fetching DJ Mix playlists:', error);
+    return [];
+  }
+};
