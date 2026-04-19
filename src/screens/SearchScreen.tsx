@@ -6,29 +6,29 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongListItem } from '../components/SongListItem';
-import { mockSongs } from '../data/mockData';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
+import { searchSongs } from '../services/musicService';
+import { Song } from '../types';
 
 export const SearchScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(mockSongs);
+  const [searchResults, setSearchResults] = useState<Song[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
-      setSearchResults(mockSongs);
+      setSearchResults([]);
     } else {
-      const filtered = mockSongs.filter(
-        (song) =>
-          song.title.toLowerCase().includes(query.toLowerCase()) ||
-          song.artist.toLowerCase().includes(query.toLowerCase()) ||
-          song.album.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filtered);
+      setLoading(true);
+      const results = await searchSongs(query);
+      setSearchResults(results);
+      setLoading(false);
     }
   };
 
@@ -61,16 +61,28 @@ export const SearchScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {searchQuery.length === 0 ? (
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Text style={styles.loadingText}>Searching...</Text>
+          </View>
+        ) : searchQuery.length === 0 ? (
           <>
             <Text style={styles.sectionTitle}>Browse Genres</Text>
             <View style={styles.genresGrid}>
-              {genres.map((genre, index) => (
-                <TouchableOpacity key={genre} style={styles.genreCard}>
+              {genres.map((genre) => (
+                <TouchableOpacity 
+                  key={genre} 
+                  style={styles.genreCard}
+                  onPress={() => handleSearch(genre)}
+                >
                   <Text style={styles.genreText}>{genre}</Text>
                 </TouchableOpacity>
               ))}
             </View>
+            <Text style={styles.searchHint}>
+              Try searching for artists like "Dua Lipa", "The Weeknd", or "Drake"
+            </Text>
           </>
         ) : (
           <>
@@ -153,5 +165,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
+  },
+  loadingContainer: {
+    paddingVertical: spacing.xl * 2,
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: colors.textSecondary,
+    fontSize: 16,
+    marginTop: spacing.md,
+  },
+  searchHint: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: spacing.xl,
+    marginTop: spacing.xl,
+    fontStyle: 'italic',
   },
 });

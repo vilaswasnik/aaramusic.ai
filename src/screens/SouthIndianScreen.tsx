@@ -10,16 +10,20 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
+import { SongListItem } from '../components/SongListItem';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
-import { fetchTopSongs, fetchCuratedPlaylists } from '../services/musicService';
+import { fetchSouthIndianTopSongs, fetchSouthIndianPlaylists } from '../services/musicService';
 import { Song } from '../types';
 
-export const HomeScreen: React.FC = () => {
+const ACCENT = '#E040FB';
+
+export const SouthIndianScreen: React.FC = () => {
   const { playSong } = useMusicPlayer();
   const [topSongs, setTopSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedPlaylist, setExpandedPlaylist] = useState<number | null>(null);
 
   useEffect(() => {
     loadData();
@@ -27,36 +31,38 @@ export const HomeScreen: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [songs, curatedPlaylists] = await Promise.all([
-      fetchTopSongs(50),
-      fetchCuratedPlaylists(),
+    const [songs, southPlaylists] = await Promise.all([
+      fetchSouthIndianTopSongs(30),
+      fetchSouthIndianPlaylists(),
     ]);
     setTopSongs(songs);
-    setPlaylists(curatedPlaylists);
+    setPlaylists(southPlaylists);
     setLoading(false);
   };
 
   const topHits = topSongs.slice(0, 10);
   const trending = topSongs.slice(10, 20);
-  const newReleases = topSongs.slice(20, 30);
-  const forYou = topSongs.slice(30, 40);
-  const moreToExplore = topSongs.slice(40, 50);
+  const moreHits = topSongs.slice(20, 30);
 
-  const handlePlaylist = (playlistSongs: any[]) => {
-    if (playlistSongs.length > 0) {
-      playSong(playlistSongs[0], playlistSongs);
+  const handlePlaylist = (songs: Song[]) => {
+    if (songs.length > 0) {
+      playSong(songs[0], songs);
     }
+  };
+
+  const togglePlaylist = (index: number) => {
+    setExpandedPlaylist(expandedPlaylist === index ? null : index);
   };
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
       <LinearGradient
-        colors={[colors.gradient1, colors.background]}
+        colors={['#E040FB', '#6A1B9A', colors.background]}
         style={styles.header}
       >
-        <Text style={styles.greeting}>Good Evening</Text>
-        <Text style={styles.headerTitle}>Aara Music</Text>
+        <Text style={styles.greeting}>Vanakkam</Text>
+        <Text style={styles.headerTitle}>South Indian</Text>
       </LinearGradient>
 
       <ScrollView
@@ -66,14 +72,14 @@ export const HomeScreen: React.FC = () => {
       >
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingText}>Loading real songs...</Text>
+            <ActivityIndicator size="large" color={ACCENT} />
+            <Text style={styles.loadingText}>Loading South Indian hits...</Text>
           </View>
         ) : (
           <>
-            {/* Top Chart Hits */}
+            {/* Top Tamil Hits */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Top Chart Hits</Text>
+              <Text style={styles.sectionTitle}>Top Tamil Hits</Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -85,86 +91,69 @@ export const HomeScreen: React.FC = () => {
               </ScrollView>
             </View>
 
-            {/* Trending Now */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Trending Now</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalScroll}
-              >
-                {trending.map((song) => (
-                  <SongCard key={song.id} song={song} />
-                ))}
-              </ScrollView>
-            </View>
-
-            {/* New Releases */}
-            {newReleases.length > 0 && (
+            {/* Trending */}
+            {trending.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>New Releases</Text>
+                <Text style={styles.sectionTitle}>Trending Now</Text>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.horizontalScroll}
                 >
-                  {newReleases.map((song) => (
+                  {trending.map((song) => (
                     <SongCard key={song.id} song={song} />
                   ))}
                 </ScrollView>
               </View>
             )}
 
-            {/* For You */}
-            {forYou.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>For You</Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.horizontalScroll}
+            {/* Playlists */}
+            {playlists.map((playlist, index) => (
+              <View key={index} style={styles.section}>
+                <TouchableOpacity
+                  style={styles.playlistCard}
+                  onPress={() => togglePlaylist(index)}
                 >
-                  {forYou.map((song) => (
-                    <SongCard key={song.id} song={song} />
-                  ))}
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Featured Playlists */}
-            {playlists.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Featured Playlists</Text>
-                {playlists.map((playlist, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.playlistCard}
-                    onPress={() => handlePlaylist(playlist.songs)}
+                  <LinearGradient
+                    colors={['rgba(224, 64, 251, 0.25)', colors.card]}
+                    style={styles.playlistGradient}
                   >
-                    <LinearGradient
-                      colors={['rgba(255, 23, 68, 0.2)', colors.card]}
-                      style={styles.playlistGradient}
-                    >
-                      <Text style={styles.playlistName}>{playlist.name}</Text>
-                      <Text style={styles.playlistDescription}>
-                        {playlist.description} • {playlist.songs.length} songs
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                ))}
+                    <View style={styles.playlistHeader}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.playlistName}>{playlist.name}</Text>
+                        <Text style={styles.playlistDescription}>
+                          {playlist.description} • {playlist.songs.length} songs
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.playButton}
+                        onPress={() => handlePlaylist(playlist.songs)}
+                      >
+                        <Text style={styles.playButtonText}>▶ Play</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </LinearGradient>
+                </TouchableOpacity>
+                {expandedPlaylist === index && (
+                  <View style={styles.expandedList}>
+                    {playlist.songs.map((song) => (
+                      <SongListItem key={song.id} song={song} />
+                    ))}
+                  </View>
+                )}
               </View>
-            )}
+            ))}
 
-            {/* More to Explore */}
-            {moreToExplore.length > 0 && (
+            {/* More Hits */}
+            {moreHits.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>More to Explore</Text>
+                <Text style={styles.sectionTitle}>More Hits</Text>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.horizontalScroll}
                 >
-                  {moreToExplore.map((song) => (
+                  {moreHits.map((song) => (
                     <SongCard key={song.id} song={song} />
                   ))}
                 </ScrollView>
@@ -190,7 +179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   greeting: {
-    color: colors.textSecondary,
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 14,
     marginBottom: 4,
   },
@@ -218,12 +207,15 @@ const styles = StyleSheet.create({
   },
   playlistCard: {
     marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
     borderRadius: 12,
     overflow: 'hidden',
   },
   playlistGradient: {
     padding: spacing.lg,
+  },
+  playlistHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   playlistName: {
     ...typography.h3,
@@ -233,6 +225,22 @@ const styles = StyleSheet.create({
   playlistDescription: {
     color: colors.textSecondary,
     fontSize: 14,
+  },
+  playButton: {
+    backgroundColor: ACCENT,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginLeft: spacing.md,
+  },
+  playButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  expandedList: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
   },
   loadingContainer: {
     flex: 1,
