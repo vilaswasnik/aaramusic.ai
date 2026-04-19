@@ -16,6 +16,7 @@ import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { fetchDJMixTopSongs, fetchDJMixPlaylists, searchSongs } from '../services/musicService';
 import { Song } from '../types';
+import { useNavigation } from '@react-navigation/native';
 
 const ACCENT = '#00E5FF';
 
@@ -30,6 +31,7 @@ const MOODS = [
 
 export const DJMixScreen: React.FC = () => {
   const { playSong } = useMusicPlayer();
+  const navigation = useNavigation<any>();
   const [topSongs, setTopSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +105,26 @@ export const DJMixScreen: React.FC = () => {
           </View>
         ) : (
           <>
+            {/* Open DJ Mixer */}
+            <TouchableOpacity
+              style={styles.mixerLaunchBtn}
+              onPress={() => navigation.navigate('DJMixer')}
+            >
+              <LinearGradient
+                colors={['#00E5FF', '#6200EA']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.mixerLaunchGradient}
+              >
+                <Ionicons name="headset" size={28} color="#fff" />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.mixerLaunchTitle}>Open DJ Mixer</Text>
+                  <Text style={styles.mixerLaunchSub}>Dual decks, crossfader, BPM sync & effects</Text>
+                </View>
+                <Ionicons name="arrow-forward" size={22} color="#fff" />
+              </LinearGradient>
+            </TouchableOpacity>
+
             {/* AI Mood Quick Play */}
             <View style={styles.section}>
               <View style={styles.aiSectionHeader}>
@@ -307,6 +329,28 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 16,
     marginTop: spacing.md,
+  },
+  mixerLaunchBtn: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  mixerLaunchGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.lg,
+    gap: 14,
+  },
+  mixerLaunchTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  mixerLaunchSub: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    marginTop: 2,
   },
   aiSectionHeader: {
     flexDirection: 'row',

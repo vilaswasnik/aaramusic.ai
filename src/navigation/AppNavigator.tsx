@@ -11,6 +11,7 @@ import { SouthIndianScreen } from '../screens/SouthIndianScreen';
 import { DJMixScreen } from '../screens/DJMixScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { PlayerScreen } from '../screens/PlayerScreen';
+import { DJMixerScreen } from '../screens/DJMixerScreen';
 import { colors } from '../constants/theme';
 
 const Tab = createBottomTabNavigator();
@@ -125,9 +126,18 @@ export const AppNavigator = () => {
     >
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen
+        name="DJMixer"
+        component={DJMixerScreen}
+        options={{
+          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen
         name="Player"
         component={PlayerScreen}
         options={{
+          presentation: 'fullScreenModal',
           presentation: 'fullScreenModal',
         }}
       />
