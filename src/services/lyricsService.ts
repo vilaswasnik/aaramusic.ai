@@ -5,11 +5,7 @@ const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
 
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    if (hostname.includes('.app.github.dev')) {
-      const proxyHost = hostname.replace(/-\d+\.app\.github\.dev/, '-3001.app.github.dev');
-      return `https://${proxyHost}/lyrics`;
-    }
+    return `${window.location.origin}/lyrics`;
   }
   return 'http://localhost:3001/lyrics';
 };
@@ -91,11 +87,7 @@ export const searchKaraokeVersion = async (
     const getApiBase = (): string => {
       if (Platform.OS !== 'web') return 'https://api.deezer.com';
       if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        if (hostname.includes('.app.github.dev')) {
-          const proxyHost = hostname.replace(/-\d+\.app\.github\.dev/, '-3001.app.github.dev');
-          return `https://${proxyHost}/api`;
-        }
+        return `${window.location.origin}/api`;
       }
       return 'http://localhost:3001/api';
     };

@@ -7,12 +7,8 @@ const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
 
   if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname;
-    // GitHub Codespaces: rewrite the port in the hostname
-    if (hostname.includes('.app.github.dev')) {
-      const proxyHost = hostname.replace(/-\d+\.app\.github\.dev/, '-3001.app.github.dev');
-      return `https://${proxyHost}/api`;
-    }
+    // Use same-origin /api path — works for both Codespace and localhost
+    return `${window.location.origin}/api`;
   }
   return 'http://localhost:3001/api';
 };
