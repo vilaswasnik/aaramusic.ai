@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,7 @@ import {
   DailyMix,
 } from '../services/aiService';
 import { Song } from '../types';
+import { isVoiceSupported, startListening, stopListening, parseVoiceCommand } from '../services/voiceService';
 
 const { width } = Dimensions.get('window');
 
@@ -42,7 +43,7 @@ const getGreeting = (): string => {
 };
 
 export const HomeScreen: React.FC = () => {
-  const { playSong, playerState, listeningHistory } = useMusicPlayer();
+  const { playSong, playerState, listeningHistory, likedSongs, pause, resume, next, previous, toggleShuffle, toggleRepeat } = useMusicPlayer();
   const [topSongs, setTopSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
   const [aiRecs, setAiRecs] = useState<{ title: string; songs: Song[] }[]>([]);
@@ -52,6 +53,10 @@ export const HomeScreen: React.FC = () => {
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<{ message: string; songs: Song[] } | null>(null);
+
+  // Voice state
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const voiceSupported = isVoiceSupported();
 
   // Mood state
   const [activeMood, setActiveMood] = useState<Mood | null>(null);
@@ -154,6 +159,74 @@ export const HomeScreen: React.FC = () => {
     setAiLoading(false);
   };
 
+  const handleVoice = useCallback(() => {
+    if (isVoiceListening) {
+      stopListening();
+      setIsVoiceListening(false);
+      return;
+    }
+    startListening(
+      (result) => {
+        setAiQuery(result.transcript);
+        if (result.isFinal) {
+          const cmd = parseVoiceCommand(result.transcript);
+          switch (cmd.type) {
+            case 'play_likes':
+            case 'play_favorites':
+              if (likedSongs.length > 0) {
+                playSong(likedSongs[0], likedSongs);
+                setAiResult({ message: cmd.message + `\n${likedSongs.length} liked songs queued!`, songs: likedSongs.slice(0, 10) });
+              } else {
+                setAiResult({ message: '❤️ No liked songs yet! Like some songs first.', songs: [] });
+              }
+              setAiQuery('');
+              break;
+            case 'pause':
+              pause();
+              setAiResult({ message: cmd.message, songs: [] });
+              setAiQuery('');
+              break;
+            case 'resume':
+              resume();
+              setAiResult({ message: cmd.message, songs: [] });
+              setAiQuery('');
+              break;
+            case 'next':
+              next();
+              setAiResult({ message: cmd.message, songs: [] });
+              setAiQuery('');
+              break;
+            case 'previous':
+              previous();
+              setAiResult({ message: cmd.message, songs: [] });
+              setAiQuery('');
+              break;
+            case 'shuffle':
+              toggleShuffle();
+              setAiResult({ message: cmd.message, songs: [] });
+              setAiQuery('');
+              break;
+            case 'repeat':
+              toggleRepeat();
+              setAiResult({ message: cmd.message, songs: [] });
+              setAiQuery('');
+              break;
+            case 'search':
+              handleAiSend(result.transcript);
+              setAiQuery('');
+              break;
+          }
+        }
+      },
+      (error) => {
+        setAiResult({ message: error, songs: [] });
+      },
+      (listening) => {
+        setIsVoiceListening(listening);
+      },
+    );
+  }, [isVoiceListening, likedSongs, playSong, pause, resume, next, previous, toggleShuffle, toggleRepeat]);
+
   const handleMoodSelect = async (mood: Mood) => {
     if (activeMood === mood) {
       setActiveMood(null);
@@ -229,6 +302,15 @@ export const HomeScreen: React.FC = () => {
                       onSubmitEditing={() => handleAiSend()}
                       returnKeyType="send"
                     />
+                    {voiceSupported && (
+                      <TouchableOpacity
+                        style={[styles.aiMicBtn, isVoiceListening && styles.aiMicBtnActive]}
+                        onPress={handleVoice}
+                        activeOpacity={0.7}
+                      >
+                        <Ionicons name={isVoiceListening ? 'mic' : 'mic-outline'} size={20} color={isVoiceListening ? '#fff' : colors.primary} />
+                      </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                       style={[styles.aiSendBtn, (!aiQuery.trim() || aiLoading) && { opacity: 0.5 }]}
                       onPress={() => handleAiSend()}
@@ -629,6 +711,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  aiMicBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+  },
+  aiMicBtnActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipRow: {
     marginTop: 10,
