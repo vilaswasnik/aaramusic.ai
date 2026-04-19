@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+
 const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
 
@@ -12,7 +14,8 @@ const getLyricsBase = (): string => {
     if (hostname.includes('-8081.')) {
       return `${origin.replace('-8081.', '-3001.')}/lyrics`;
     }
-    return `${origin}/lyrics`;
+    // GitHub Pages / static host: use CORS proxy
+    return `${CORS_PROXY}${encodeURIComponent('https://api.lyrics.ovh/v1')}`;
   }
   return 'http://localhost:3001/lyrics';
 };

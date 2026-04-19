@@ -2,6 +2,15 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { Song, Album, Playlist } from '../types';
 
+// CORS proxy for GitHub Pages (static host, no backend)
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+
+const isDev = (): boolean => {
+  if (typeof window === 'undefined') return true;
+  const { hostname } = window.location;
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('.app.github.dev');
+};
+
 // Determine the correct API base URL
 const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
@@ -16,8 +25,8 @@ const getApiBase = (): string => {
     if (hostname.includes('-8081.')) {
       return `${origin.replace('-8081.', '-3001.')}/api`;
     }
-    // Production: same-origin /api path
-    return `${origin}/api`;
+    // GitHub Pages / static host: use CORS proxy to reach Deezer directly
+    return `${CORS_PROXY}${encodeURIComponent('https://api.deezer.com')}`;
   }
   return 'http://localhost:3001/api';
 };
