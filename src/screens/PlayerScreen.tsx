@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,17 +6,24 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  PanResponder,
+  Animated,
+  Platform,
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { colors, spacing, typography } from '../constants/theme';
+import { EqualizerBars } from '../components/EqualizerBars';
 import { fetchSimilarSongs } from '../services/aiService';
 
 const { width, height } = Dimensions.get('window');
+
+const hapticTap = () => {
+  if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+};
 
 export const PlayerScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -38,6 +45,37 @@ export const PlayerScreen: React.FC = () => {
 
   const [radioLoading, setRadioLoading] = useState(false);
 
+  // Animated artwork scale
+  const artScale = useRef(new Animated.Value(0.9)).current;
+  const artOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Reset and animate on song change
+    artScale.setValue(0.9);
+    artOpacity.setValue(0);
+    Animated.parallel([
+      Animated.spring(artScale, { toValue: 1, useNativeDriver: true, speed: 8, bounciness: 6 }),
+      Animated.timing(artOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+    ]).start();
+  }, [currentSong?.id]);
+
+  // Pulse animation while playing
+  const pulse = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (isPlaying) {
+      const anim = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulse, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
+          Animated.timing(pulse, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ])
+      );
+      anim.start();
+      return () => anim.stop();
+    } else {
+      pulse.setValue(1);
+    }
+  }, [isPlaying]);
+
   if (!currentSong) {
     return (
       <View style={styles.emptyContainer}>
@@ -47,6 +85,7 @@ export const PlayerScreen: React.FC = () => {
   }
 
   const handlePlayPause = () => {
+    hapticTap();
     if (isPlaying) {
       pause();
     } else {
@@ -93,10 +132,17 @@ export const PlayerScreen: React.FC = () => {
 
       {/* Album Art */}
       <View style={styles.artworkContainer}>
-        <Image source={{ uri: currentSong.coverArt }} style={styles.artwork} />
+        <Animated.View style={{ transform: [{ scale: Animated.multiply(artScale, pulse) }], opacity: artOpacity }}>
+          <View style={styles.artworkShadow}>
+            <Image source={{ uri: currentSong.coverArt }} style={styles.artwork} />
+          </View>
+        </Animated.View>
+        {isPlaying && (
+          <View style={styles.equalizerRow}>
+            <EqualizerBars isPlaying={isPlaying} barCount={5} color={colors.primary} size="medium" />
+          </View>
+        )}
       </View>
-
-      {/* Song Info */}
       <View style={styles.infoContainer}>
         <Text style={styles.title} numberOfLines={1}>
           {currentSong.title}
@@ -220,7 +266,19 @@ const styles = StyleSheet.create({
   artwork: {
     width: width * 0.85,
     height: width * 0.85,
-    borderRadius: 12,
+    borderRadius: 16,
+  },
+  artworkShadow: {
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 24,
+    elevation: 12,
+    borderRadius: 16,
+  },
+  equalizerRow: {
+    alignItems: 'center',
+    marginTop: spacing.sm,
   },
   infoContainer: {
     paddingHorizontal: spacing.xl,

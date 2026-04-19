@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from 'react-native';
@@ -12,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Song } from '../types';
 import { colors, spacing, borderRadius } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
+import { AnimatedPressable } from './AnimatedPressable';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.45;
@@ -37,7 +37,7 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onPress, size = 'mediu
   const cardSize = size === 'small' ? 120 : size === 'large' ? 200 : CARD_WIDTH;
 
   return (
-    <TouchableOpacity style={[styles.container, { width: cardSize }]} onPress={handlePress}>
+    <AnimatedPressable onPress={handlePress} style={[styles.container, { width: cardSize }]}>
       <View style={styles.imageContainer}>
         <Image source={{ uri: song.coverArt }} style={[styles.image, { width: cardSize, height: cardSize }]} />
         {isPlaying && (
@@ -48,6 +48,13 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onPress, size = 'mediu
             <Ionicons name="pulse" size={32} color={colors.primary} />
           </LinearGradient>
         )}
+        {!isPlaying && (
+          <View style={styles.playHover}>
+            <View style={styles.playCircle}>
+              <Ionicons name="play" size={20} color="#fff" />
+            </View>
+          </View>
+        )}
       </View>
       <Text style={styles.title} numberOfLines={1}>
         {song.title}
@@ -55,7 +62,7 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onPress, size = 'mediu
       <Text style={styles.artist} numberOfLines={1}>
         {song.artist}
       </Text>
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 };
 
@@ -79,6 +86,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  playHover: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+  },
+  playCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     color: colors.text,

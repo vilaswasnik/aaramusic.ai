@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
 import { SongListItem } from '../components/SongListItem';
+import { GenreScreenSkeleton } from '../components/SkeletonLoader';
+import { FadeInView } from '../components/FadeInView';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { fetchBollywoodTopSongs, fetchBollywoodPlaylists, searchSongs } from '../services/musicService';
@@ -95,8 +97,7 @@ export const BollywoodScreen: React.FC = () => {
       >
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#FF6B00" />
-            <Text style={styles.loadingText}>Loading Bollywood hits...</Text>
+            <GenreScreenSkeleton />
           </View>
         ) : (
           <>

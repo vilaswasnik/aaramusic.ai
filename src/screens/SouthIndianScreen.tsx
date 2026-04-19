@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
 import { SongListItem } from '../components/SongListItem';
+import { GenreScreenSkeleton } from '../components/SkeletonLoader';
+import { FadeInView } from '../components/FadeInView';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { fetchSouthIndianTopSongs, fetchSouthIndianPlaylists, searchSongs } from '../services/musicService';
@@ -97,8 +99,7 @@ export const SouthIndianScreen: React.FC = () => {
       >
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={ACCENT} />
-            <Text style={styles.loadingText}>Loading South Indian hits...</Text>
+            <GenreScreenSkeleton />
           </View>
         ) : (
           <>

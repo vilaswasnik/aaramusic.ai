@@ -5,13 +5,15 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
+import { HomeScreenSkeleton } from '../components/SkeletonLoader';
+import { FadeInView } from '../components/FadeInView';
+import { AnimatedPressable } from '../components/AnimatedPressable';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { fetchTopSongs, fetchCuratedPlaylists } from '../services/musicService';
@@ -89,13 +91,11 @@ export const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingText}>Loading real songs...</Text>
-          </View>
+          <HomeScreenSkeleton />
         ) : (
           <>
             {/* Top Chart Hits */}
+            <FadeInView delay={0}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Top Chart Hits</Text>
               <ScrollView
@@ -108,8 +108,10 @@ export const HomeScreen: React.FC = () => {
                 ))}
               </ScrollView>
             </View>
+            </FadeInView>
 
             {/* Trending Now */}
+            <FadeInView delay={100}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Trending Now</Text>
               <ScrollView
@@ -122,6 +124,7 @@ export const HomeScreen: React.FC = () => {
                 ))}
               </ScrollView>
             </View>
+            </FadeInView>
 
             {/* New Releases */}
             {newReleases.length > 0 && (
@@ -157,10 +160,11 @@ export const HomeScreen: React.FC = () => {
 
             {/* Featured Playlists */}
             {playlists.length > 0 && (
+              <FadeInView delay={300}>
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Featured Playlists</Text>
                 {playlists.map((playlist, index) => (
-                  <TouchableOpacity
+                  <AnimatedPressable
                     key={index}
                     style={styles.playlistCard}
                     onPress={() => handlePlaylist(playlist.songs)}
@@ -174,9 +178,10 @@ export const HomeScreen: React.FC = () => {
                         {playlist.description} • {playlist.songs.length} songs
                       </Text>
                     </LinearGradient>
-                  </TouchableOpacity>
+                  </AnimatedPressable>
                 ))}
               </View>
+              </FadeInView>
             )}
 
             {/* Recently Played */}
@@ -327,10 +332,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: spacing.xl * 3,
-  },
-  loadingText: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    marginTop: spacing.md,
   },
 });
