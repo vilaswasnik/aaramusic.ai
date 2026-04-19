@@ -13,6 +13,8 @@ type VoiceStateCallback = (listening: boolean) => void;
 
 let recognition: any = null;
 let isListening = false;
+let retryCount = 0;
+const MAX_RETRIES = 2;
 
 const getSpeechRecognition = (): any => {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return null;
@@ -35,6 +37,15 @@ export const startListening = (
     return;
   }
 
+  retryCount = 0;
+  doStart(onResult, onError, onStateChange);
+};
+
+const doStart = (
+  onResult: VoiceCallback,
+  onError: VoiceErrorCallback,
+  onStateChange: VoiceStateCallback,
+): void => {
   recognition = getSpeechRecognition();
   if (!recognition) {
     onError('Voice recognition not supported in this browser');
@@ -46,12 +57,16 @@ export const startListening = (
   recognition.lang = 'en-US';
   recognition.maxAlternatives = 1;
 
+  let gotResult = false;
+
   recognition.onstart = () => {
     isListening = true;
     onStateChange(true);
   };
 
   recognition.onresult = (event: any) => {
+    gotResult = true;
+    retryCount = 0;
     let transcript = '';
     let isFinal = false;
     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -63,11 +78,25 @@ export const startListening = (
 
   recognition.onerror = (event: any) => {
     isListening = false;
+
+    // Auto-retry on network errors (common with proxied URLs)
+    if (event.error === 'network' && retryCount < MAX_RETRIES) {
+      retryCount++;
+      onStateChange(true); // keep the mic UI active
+      setTimeout(() => doStart(onResult, onError, onStateChange), 300);
+      return;
+    }
+
     onStateChange(false);
-    if (event.error === 'no-speech') {
-      onError('No speech detected. Try again.');
+    if (event.error === 'network') {
+      onError('🌐 Network error — check your internet connection and try again. Use Chrome for best results.');
+    } else if (event.error === 'no-speech') {
+      onError('No speech detected. Tap the mic and try again.');
     } else if (event.error === 'not-allowed') {
-      onError('Microphone access denied. Please allow microphone permission.');
+      onError('🎤 Microphone access denied. Please allow microphone permission in your browser settings.');
+    } else if (event.error === 'aborted') {
+      // User or system cancelled — silent
+      return;
     } else {
       onError(`Voice error: ${event.error}`);
     }
