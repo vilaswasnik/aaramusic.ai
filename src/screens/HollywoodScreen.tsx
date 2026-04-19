@@ -8,15 +8,24 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
 import { SongListItem } from '../components/SongListItem';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
-import { fetchHollywoodTopSongs, fetchHollywoodPlaylists } from '../services/musicService';
+import { fetchHollywoodTopSongs, fetchHollywoodPlaylists, searchSongs } from '../services/musicService';
 import { Song } from '../types';
 
 const ACCENT = '#1DB954';
+
+const MOODS = [
+  { label: '🎵 Pop Hits', query: 'pop hits 2024' },
+  { label: '🔥 EDM', query: 'EDM electronic dance' },
+  { label: '🎸 Rock', query: 'rock hits' },
+  { label: '😌 Chill', query: 'chill vibes acoustic' },
+  { label: '🏋️ Workout', query: 'workout motivation' },
+];
 
 export const HollywoodScreen: React.FC = () => {
   const { playSong } = useMusicPlayer();
@@ -24,6 +33,9 @@ export const HollywoodScreen: React.FC = () => {
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedPlaylist, setExpandedPlaylist] = useState<number | null>(null);
+  const [moodSongs, setMoodSongs] = useState<Song[]>([]);
+  const [activeMood, setActiveMood] = useState<string | null>(null);
+  const [moodLoading, setMoodLoading] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -54,6 +66,19 @@ export const HollywoodScreen: React.FC = () => {
     setExpandedPlaylist(expandedPlaylist === index ? null : index);
   };
 
+  const handleMood = async (mood: typeof MOODS[0]) => {
+    if (activeMood === mood.label) {
+      setActiveMood(null);
+      setMoodSongs([]);
+      return;
+    }
+    setActiveMood(mood.label);
+    setMoodLoading(true);
+    const results = await searchSongs(mood.query);
+    setMoodSongs(results.slice(0, 10));
+    setMoodLoading(false);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -77,6 +102,35 @@ export const HollywoodScreen: React.FC = () => {
           </View>
         ) : (
           <>
+            {/* AI Mood Quick Play */}
+            <View style={styles.section}>
+              <View style={styles.aiSectionHeader}>
+                <Ionicons name="sparkles" size={18} color="#FFD700" />
+                <Text style={styles.sectionTitle}>AI Mood Mix</Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.moodScroll}>
+                {MOODS.map((mood) => (
+                  <TouchableOpacity
+                    key={mood.label}
+                    style={[styles.moodChip, activeMood === mood.label && styles.moodChipActive]}
+                    onPress={() => handleMood(mood)}
+                  >
+                    <Text style={[styles.moodChipText, activeMood === mood.label && styles.moodChipTextActive]}>
+                      {mood.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              {moodLoading && <ActivityIndicator size="small" color="#FFD700" style={{ marginTop: 12 }} />}
+              {moodSongs.length > 0 && !moodLoading && (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+                  {moodSongs.map((song) => (
+                    <SongCard key={song.id} song={song} />
+                  ))}
+                </ScrollView>
+              )}
+            </View>
+
             {/* Top Hits */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Top English Hits</Text>
@@ -252,5 +306,36 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 16,
     marginTop: spacing.md,
+  },
+  aiSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  moodScroll: {
+    paddingHorizontal: spacing.md,
+    gap: 8,
+  },
+  moodChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  moodChipActive: {
+    backgroundColor: 'rgba(29,185,84,0.2)',
+    borderColor: ACCENT,
+  },
+  moodChipText: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  moodChipTextActive: {
+    color: ACCENT,
   },
 });

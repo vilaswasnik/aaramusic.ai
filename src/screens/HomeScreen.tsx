@@ -6,24 +6,42 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { fetchTopSongs, fetchCuratedPlaylists } from '../services/musicService';
+import { getSmartRecommendations } from '../services/aiService';
 import { Song } from '../types';
 
+const getGreeting = (): string => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good Morning';
+  if (hour < 17) return 'Good Afternoon';
+  return 'Good Evening';
+};
+
 export const HomeScreen: React.FC = () => {
-  const { playSong } = useMusicPlayer();
+  const { playSong, listeningHistory } = useMusicPlayer();
   const [topSongs, setTopSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
+  const [aiRecs, setAiRecs] = useState<{ title: string; songs: Song[] }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  // Load AI recommendations when listening history changes
+  useEffect(() => {
+    if (!loading) {
+      getSmartRecommendations(listeningHistory).then(setAiRecs);
+    }
+  }, [listeningHistory.length, loading]);
 
   const loadData = async () => {
     setLoading(true);
@@ -55,8 +73,14 @@ export const HomeScreen: React.FC = () => {
         colors={[colors.gradient1, colors.background]}
         style={styles.header}
       >
-        <Text style={styles.greeting}>Good Evening</Text>
-        <Text style={styles.headerTitle}>Aara Music</Text>
+        <Text style={styles.greeting}>{getGreeting()}</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.headerTitle}>Aara Music</Text>
+          <View style={styles.aiBadge}>
+            <Ionicons name="sparkles" size={12} color="#FFD700" />
+            <Text style={styles.aiBadgeText}>AI</Text>
+          </View>
+        </View>
       </LinearGradient>
 
       <ScrollView
@@ -155,6 +179,44 @@ export const HomeScreen: React.FC = () => {
               </View>
             )}
 
+            {/* Recently Played */}
+            {listeningHistory.length > 0 && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="time-outline" size={18} color={colors.primary} />
+                  <Text style={styles.sectionTitle}>Recently Played</Text>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalScroll}
+                >
+                  {listeningHistory.slice(0, 10).map((song) => (
+                    <SongCard key={song.id} song={song} />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            {/* AI Recommendations */}
+            {aiRecs.map((rec, index) => (
+              <View key={index} style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="sparkles" size={16} color="#FFD700" />
+                  <Text style={styles.sectionTitle}>{rec.title}</Text>
+                </View>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalScroll}
+                >
+                  {rec.songs.map((song) => (
+                    <SongCard key={song.id} song={song} />
+                  ))}
+                </ScrollView>
+              </View>
+            ))}
+
             {/* More to Explore */}
             {moreToExplore.length > 0 && (
               <View style={styles.section}>
@@ -197,6 +259,32 @@ const styles = StyleSheet.create({
   headerTitle: {
     ...typography.h1,
     color: colors.text,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  aiBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,215,0,0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    gap: 4,
+  },
+  aiBadgeText: {
+    color: '#FFD700',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
   },
   scrollView: {
     flex: 1,

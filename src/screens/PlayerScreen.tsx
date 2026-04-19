@@ -7,12 +7,14 @@ import {
   StyleSheet,
   Dimensions,
   PanResponder,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { colors, spacing, typography } from '../constants/theme';
+import { fetchSimilarSongs } from '../services/aiService';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +22,7 @@ export const PlayerScreen: React.FC = () => {
   const navigation = useNavigation();
   const {
     playerState,
+    playSong,
     pause,
     resume,
     next,
@@ -27,9 +30,13 @@ export const PlayerScreen: React.FC = () => {
     seek,
     toggleShuffle,
     toggleRepeat,
+    toggleLike,
+    isLiked,
   } = useMusicPlayer();
 
   const { currentSong, isPlaying, position, duration, shuffle, repeat } = playerState;
+
+  const [radioLoading, setRadioLoading] = useState(false);
 
   if (!currentSong) {
     return (
@@ -45,6 +52,21 @@ export const PlayerScreen: React.FC = () => {
     } else {
       resume();
     }
+  };
+
+  const handleAIRadio = async () => {
+    if (!currentSong || radioLoading) return;
+    setRadioLoading(true);
+    try {
+      const similar = await fetchSimilarSongs(currentSong);
+      if (similar.length > 0) {
+        const radioQueue = [currentSong, ...similar];
+        await playSong(radioQueue[1], radioQueue);
+      }
+    } catch (error) {
+      console.error('AI Radio error:', error);
+    }
+    setRadioLoading(false);
   };
 
   const formatTime = (seconds: number): string => {
@@ -139,8 +161,24 @@ export const PlayerScreen: React.FC = () => {
 
       {/* Bottom Actions */}
       <View style={styles.bottomActions}>
-        <TouchableOpacity>
-          <Ionicons name="heart-outline" size={28} color={colors.text} />
+        <TouchableOpacity onPress={() => currentSong && toggleLike(currentSong)}>
+          <Ionicons
+            name={currentSong && isLiked(currentSong.id) ? 'heart' : 'heart-outline'}
+            size={28}
+            color={currentSong && isLiked(currentSong.id) ? colors.primary : colors.text}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.aiRadioButton}
+          onPress={handleAIRadio}
+          disabled={radioLoading}
+        >
+          {radioLoading ? (
+            <ActivityIndicator size="small" color="#FFD700" />
+          ) : (
+            <Ionicons name="sparkles" size={20} color="#FFD700" />
+          )}
+          <Text style={styles.aiRadioText}>AI Radio</Text>
         </TouchableOpacity>
         <TouchableOpacity>
           <Ionicons name="share-outline" size={28} color={colors.text} />
@@ -240,8 +278,25 @@ const styles = StyleSheet.create({
   bottomActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center',
     paddingHorizontal: spacing.xl * 2,
     marginBottom: spacing.xl,
+  },
+  aiRadioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+    gap: 6,
+  },
+  aiRadioText: {
+    color: '#FFD700',
+    fontSize: 13,
+    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,

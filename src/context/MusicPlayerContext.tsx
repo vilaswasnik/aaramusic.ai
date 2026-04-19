@@ -4,6 +4,10 @@ import { Song, PlayerState } from '../types';
 
 interface MusicPlayerContextType {
   playerState: PlayerState;
+  listeningHistory: Song[];
+  likedSongs: Song[];
+  toggleLike: (song: Song) => void;
+  isLiked: (songId: string) => boolean;
   playSong: (song: Song, queue?: Song[]) => Promise<void>;
   pause: () => Promise<void>;
   resume: () => Promise<void>;
@@ -42,6 +46,18 @@ export const MusicPlayerProvider: React.FC<MusicPlayerProviderProps> = ({ childr
 
   const soundRef = useRef<Audio.Sound | null>(null);
   const currentIndexRef = useRef<number>(0);
+  const [listeningHistory, setListeningHistory] = useState<Song[]>([]);
+  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+
+  const toggleLike = (song: Song) => {
+    setLikedSongs((prev) => {
+      const exists = prev.some((s) => s.id === song.id);
+      if (exists) return prev.filter((s) => s.id !== song.id);
+      return [song, ...prev];
+    });
+  };
+
+  const isLiked = (songId: string) => likedSongs.some((s) => s.id === songId);
 
   const playSong = async (song: Song, queue: Song[] = [song]) => {
     try {
@@ -76,6 +92,12 @@ export const MusicPlayerProvider: React.FC<MusicPlayerProviderProps> = ({ childr
       soundRef.current = sound;
       const index = queue.findIndex((s) => s.id === song.id);
       currentIndexRef.current = index >= 0 ? index : 0;
+
+      // Track listening history (keep last 100)
+      setListeningHistory((prev) => {
+        const filtered = prev.filter((s) => s.id !== song.id);
+        return [song, ...filtered].slice(0, 100);
+      });
 
       setPlayerState({
         currentSong: song,
@@ -157,6 +179,10 @@ export const MusicPlayerProvider: React.FC<MusicPlayerProviderProps> = ({ childr
     <MusicPlayerContext.Provider
       value={{
         playerState,
+        listeningHistory,
+        likedSongs,
+        toggleLike,
+        isLiked,
         playSong,
         pause,
         resume,

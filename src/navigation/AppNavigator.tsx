@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SearchScreen } from '../screens/SearchScreen';
+import { AIScreen } from '../screens/AIScreen';
 import { BollywoodScreen } from '../screens/BollywoodScreen';
 import { HollywoodScreen } from '../screens/HollywoodScreen';
 import { SouthIndianScreen } from '../screens/SouthIndianScreen';
@@ -50,6 +51,16 @@ const TabNavigator = () => {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="search" size={size} color={color} />
           ),
+        }}
+      />
+      <Tab.Screen
+        name="Aara AI"
+        component={AIScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="sparkles" size={size} color={color} />
+          ),
+          tabBarLabel: 'AI',
         }}
       />
       <Tab.Screen
