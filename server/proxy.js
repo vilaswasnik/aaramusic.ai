@@ -7,6 +7,18 @@ const PORT = 3001;
 
 app.use(cors());
 
+// Lyrics proxy — fetches from lyrics.ovh
+app.get('/lyrics/:artist/:title', async (req, res) => {
+  try {
+    const { artist, title } = req.params;
+    const url = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
+    const response = await axios.get(url, { timeout: 8000 });
+    res.json(response.data);
+  } catch (error) {
+    res.json({ lyrics: '' });
+  }
+});
+
 app.use('/api', async (req, res) => {
   try {
     const deezerUrl = `https://api.deezer.com${req.url}`;

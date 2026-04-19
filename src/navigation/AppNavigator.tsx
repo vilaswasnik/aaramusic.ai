@@ -12,6 +12,8 @@ import { DJMixScreen } from '../screens/DJMixScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { PlayerScreen } from '../screens/PlayerScreen';
 import { DJMixerScreen } from '../screens/DJMixerScreen';
+import { KaraokeScreen } from '../screens/KaraokeScreen';
+import { KaraokePlayerScreen } from '../screens/KaraokePlayerScreen';
 import { colors } from '../constants/theme';
 
 const Tab = createBottomTabNavigator();
@@ -104,6 +106,15 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="Karaoke"
+        component={KaraokeScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="mic" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Library"
         component={LibraryScreen}
         options={{
@@ -136,6 +147,14 @@ export const AppNavigator = () => {
       <Stack.Screen
         name="Player"
         component={PlayerScreen}
+        options={{
+          presentation: 'fullScreenModal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen
+        name="KaraokePlayer"
+        component={KaraokePlayerScreen}
         options={{
           presentation: 'fullScreenModal',
           animation: 'slide_from_bottom',
