@@ -5,7 +5,14 @@ const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
 
   if (typeof window !== 'undefined') {
-    return `${window.location.origin}/lyrics`;
+    const { protocol, hostname, origin } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return `${protocol}//${hostname}:3001/lyrics`;
+    }
+    if (hostname.includes('-8081.')) {
+      return `${origin.replace('-8081.', '-3001.')}/lyrics`;
+    }
+    return `${origin}/lyrics`;
   }
   return 'http://localhost:3001/lyrics';
 };

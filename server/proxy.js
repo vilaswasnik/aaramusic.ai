@@ -5,7 +5,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const WEB_PORT = 8081;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 app.use(cors());
 
@@ -21,6 +21,7 @@ app.get('/lyrics/:artist/:title', async (req, res) => {
   }
 });
 
+// Deezer API proxy
 app.use('/api', async (req, res) => {
   try {
     const deezerUrl = `https://api.deezer.com${req.url}`;
@@ -32,46 +33,15 @@ app.use('/api', async (req, res) => {
   }
 });
 
-// API-only proxy on port 3001
+// In production, serve the exported Expo web build from the same server
+if (IS_PRODUCTION) {
+  const distPath = path.join(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
+
 app.listen(PORT, () => {
-  console.log(`CORS Proxy running on http://localhost:${PORT}`);
-  console.log('Proxying requests to https://api.deezer.com');
-});
-
-// Serve static web build on port 8081
-const webApp = express();
-webApp.use(cors());
-
-// Also mount the API/lyrics routes on the web server so same-origin works
-webApp.get('/lyrics/:artist/:title', async (req, res) => {
-  try {
-    const { artist, title } = req.params;
-    const url = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
-    const response = await axios.get(url, { timeout: 8000 });
-    res.json(response.data);
-  } catch (error) {
-    res.json({ lyrics: '' });
-  }
-});
-
-webApp.use('/api', async (req, res) => {
-  try {
-    const deezerUrl = `https://api.deezer.com${req.url}`;
-    const response = await axios.get(deezerUrl, { params: req.query });
-    res.json(response.data);
-  } catch (error) {
-    console.error('Proxy error:', error.message);
-    res.status(500).json({ error: 'Proxy request failed' });
-  }
-});
-
-// Serve the exported Expo web build
-const distPath = path.join(__dirname, '..', 'dist');
-webApp.use(express.static(distPath));
-webApp.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
-
-webApp.listen(WEB_PORT, () => {
-  console.log(`Web app serving on http://localhost:${WEB_PORT}`);
+  console.log(`Aara Music server running on port ${PORT} (${IS_PRODUCTION ? 'production' : 'development'})`);
 });
