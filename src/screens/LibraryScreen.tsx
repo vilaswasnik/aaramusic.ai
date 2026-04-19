@@ -6,6 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  TextInput,
+  Alert,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
@@ -14,15 +17,33 @@ import { SongListItem } from '../components/SongListItem';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 
-type TabType = 'recent' | 'liked' | 'playlists' | 'artists';
+type TabType = 'recent' | 'liked' | 'notes' | 'playlists' | 'artists';
+
+interface Note {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: number;
+  color: string;
+}
+
+const NOTE_COLORS = ['#E91E63', '#9C27B0', '#3F51B5', '#009688', '#FF9800', '#607D8B'];
 
 export const LibraryScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('recent');
   const { playSong, listeningHistory, likedSongs } = useMusicPlayer();
 
+  // Notes state
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteBody, setNoteBody] = useState('');
+  const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [showNoteForm, setShowNoteForm] = useState(false);
+
   const tabs: { key: TabType; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
     { key: 'recent', label: 'Recent', icon: 'time-outline' },
     { key: 'liked', label: 'Liked', icon: 'heart' },
+    { key: 'notes', label: 'Notes', icon: 'document-text-outline' },
     { key: 'playlists', label: 'Playlists', icon: 'list' },
     { key: 'artists', label: 'Artists', icon: 'person-outline' },
   ];
@@ -31,6 +52,55 @@ export const LibraryScreen: React.FC = () => {
     if (playlistSongs.length > 0) {
       playSong(playlistSongs[0], playlistSongs);
     }
+  };
+
+  const handleSaveNote = () => {
+    const title = noteTitle.trim();
+    const body = noteBody.trim();
+    if (!title && !body) return;
+
+    if (editingNote) {
+      setNotes((prev) =>
+        prev.map((n) => (n.id === editingNote ? { ...n, title: title || 'Untitled', body } : n))
+      );
+      setEditingNote(null);
+    } else {
+      const note: Note = {
+        id: Date.now().toString(),
+        title: title || 'Untitled',
+        body,
+        createdAt: Date.now(),
+        color: NOTE_COLORS[notes.length % NOTE_COLORS.length],
+      };
+      setNotes((prev) => [note, ...prev]);
+    }
+    setNoteTitle('');
+    setNoteBody('');
+    setShowNoteForm(false);
+  };
+
+  const handleEditNote = (note: Note) => {
+    setEditingNote(note.id);
+    setNoteTitle(note.title);
+    setNoteBody(note.body);
+    setShowNoteForm(true);
+  };
+
+  const handleDeleteNote = (id: string) => {
+    const doDelete = () => setNotes((prev) => prev.filter((n) => n.id !== id));
+    if (Platform.OS === 'web') {
+      if (window.confirm('Delete this note?')) doDelete();
+    } else {
+      Alert.alert('Delete Note', 'Are you sure?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: doDelete },
+      ]);
+    }
+  };
+
+  const formatDate = (ts: number) => {
+    const d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -200,6 +270,89 @@ export const LibraryScreen: React.FC = () => {
           </View>
         )}
 
+        {/* Notes */}
+        {activeTab === 'notes' && (
+          <View>
+            {/* Add / Edit Form */}
+            {showNoteForm ? (
+              <View style={styles.noteForm}>
+                <TextInput
+                  style={styles.noteTitleInput}
+                  placeholder="Note title..."
+                  placeholderTextColor={colors.textSecondary}
+                  value={noteTitle}
+                  onChangeText={setNoteTitle}
+                  maxLength={100}
+                />
+                <TextInput
+                  style={styles.noteBodyInput}
+                  placeholder="Write your note... (lyrics, ideas, playlists)"
+                  placeholderTextColor={colors.textSecondary}
+                  value={noteBody}
+                  onChangeText={setNoteBody}
+                  multiline
+                  textAlignVertical="top"
+                />
+                <View style={styles.noteFormActions}>
+                  <TouchableOpacity
+                    style={styles.noteCancelBtn}
+                    onPress={() => { setShowNoteForm(false); setEditingNote(null); setNoteTitle(''); setNoteBody(''); }}
+                  >
+                    <Text style={styles.noteCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.noteSaveBtn, (!noteTitle.trim() && !noteBody.trim()) && { opacity: 0.5 }]}
+                    onPress={handleSaveNote}
+                    disabled={!noteTitle.trim() && !noteBody.trim()}
+                  >
+                    <Ionicons name="checkmark" size={16} color="#fff" />
+                    <Text style={styles.noteSaveText}>{editingNote ? 'Update' : 'Save'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.addNoteBtn}
+                onPress={() => setShowNoteForm(true)}
+              >
+                <Ionicons name="add-circle" size={22} color={colors.primary} />
+                <Text style={styles.addNoteText}>New Note</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Notes List */}
+            {notes.length === 0 && !showNoteForm ? (
+              <View style={styles.emptyState}>
+                <Ionicons name="document-text-outline" size={64} color={colors.textSecondary} />
+                <Text style={styles.emptyText}>No notes yet</Text>
+                <Text style={styles.emptySubtext}>
+                  Jot down lyrics, song ideas, playlist plans, or anything music-related
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.notesGrid}>
+                {notes.map((note) => (
+                  <TouchableOpacity
+                    key={note.id}
+                    style={[styles.noteCard, { borderLeftColor: note.color }]}
+                    onPress={() => handleEditNote(note)}
+                    onLongPress={() => handleDeleteNote(note.id)}
+                  >
+                    <Text style={styles.noteCardTitle} numberOfLines={1}>{note.title}</Text>
+                    {note.body ? <Text style={styles.noteCardBody} numberOfLines={3}>{note.body}</Text> : null}
+                    <View style={styles.noteCardFooter}>
+                      <Text style={styles.noteCardDate}>{formatDate(note.createdAt)}</Text>
+                      <TouchableOpacity onPress={() => handleDeleteNote(note.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                        <Ionicons name="trash-outline" size={14} color={colors.textSecondary} />
+                      </TouchableOpacity>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        )}
+
         <View style={{ height: 140 }} />
       </ScrollView>
     </View>
@@ -341,5 +494,113 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: spacing.xl,
     lineHeight: 20,
+  },
+  // Notes styles
+  addNoteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
+  addNoteText: {
+    color: colors.primary,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  noteForm: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  noteTitleInput: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingBottom: 8,
+    marginBottom: 10,
+  },
+  noteBodyInput: {
+    color: colors.text,
+    fontSize: 14,
+    minHeight: 100,
+    lineHeight: 20,
+  },
+  noteFormActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 12,
+  },
+  noteCancelBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  noteCancelText: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  noteSaveBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  noteSaveText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  notesGrid: {
+    paddingHorizontal: spacing.md,
+  },
+  noteCard: {
+    backgroundColor: colors.card,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+  },
+  noteCardTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  noteCardBody: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 8,
+  },
+  noteCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  noteCardDate: {
+    color: colors.textSecondary,
+    fontSize: 11,
   },
 });

@@ -44,6 +44,7 @@ export const startListening = (
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = 'en-US';
+  recognition.maxAlternatives = 1;
 
   recognition.onstart = () => {
     isListening = true;
@@ -79,8 +80,10 @@ export const startListening = (
 
   try {
     recognition.start();
-  } catch {
-    onError('Could not start voice recognition');
+  } catch (e: any) {
+    isListening = false;
+    onStateChange(false);
+    onError(e?.message || 'Could not start voice recognition');
   }
 };
 

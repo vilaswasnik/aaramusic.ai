@@ -99,7 +99,7 @@ export const HomeScreen: React.FC = () => {
     setMixesLoading(false);
   };
 
-  const handleAiSend = async (overrideText?: string) => {
+  const handleAiSend = useCallback(async (overrideText?: string) => {
     const text = (overrideText || aiQuery).trim();
     if (!text || aiLoading) return;
     setAiQuery('');
@@ -157,7 +157,7 @@ export const HomeScreen: React.FC = () => {
       setAiResult({ message: "Oops! Something went wrong. Try again.", songs: [] });
     }
     setAiLoading(false);
-  };
+  }, [aiQuery, aiLoading, listeningHistory, playerState.queue]);
 
   const handleVoice = useCallback(() => {
     if (isVoiceListening) {
@@ -225,7 +225,7 @@ export const HomeScreen: React.FC = () => {
         setIsVoiceListening(listening);
       },
     );
-  }, [isVoiceListening, likedSongs, playSong, pause, resume, next, previous, toggleShuffle, toggleRepeat]);
+  }, [isVoiceListening, likedSongs, playSong, pause, resume, next, previous, toggleShuffle, toggleRepeat, handleAiSend]);
 
   const handleMoodSelect = async (mood: Mood) => {
     if (activeMood === mood) {
