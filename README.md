@@ -62,6 +62,50 @@ bash stop.sh
 
 ---
 
+## Test on Mobile (no App Store needed)
+
+You can test the app on any phone or tablet right now using your browser — no install required.
+
+### Step 1 — Get the public URL
+
+If running in **GitHub Codespaces**, the app is already publicly accessible:
+
+```
+https://<your-codespace-name>-8081.app.github.dev
+```
+
+Find your URL by running:
+```bash
+echo "https://${CODESPACE_NAME}-8081.app.github.dev"
+```
+
+Or generate a QR code to scan with your phone:
+```bash
+npx qrcode-terminal "https://${CODESPACE_NAME}-8081.app.github.dev"
+```
+
+### Step 2 — Open in mobile browser
+
+Open the URL in **Safari** (iPhone) or **Chrome** (Android). The app is fully responsive and touch-friendly.
+
+### Step 3 — Add to Home Screen (optional, feels native)
+
+**iPhone (Safari):**
+1. Tap the **Share** button (box with arrow at the bottom)
+2. Tap **Add to Home Screen**
+3. Tap **Add**
+
+**Android (Chrome):**
+1. Tap the **⋮ menu** (top right)
+2. Tap **Add to Home screen**
+3. Tap **Add**
+
+The app opens full-screen with no browser chrome — identical to a native app install, no App Store required.
+
+> The Codespaces URL stays live as long as your Codespace is running. After a restart, run `npm run web` again — the URL remains the same.
+
+---
+
 ## Architecture
 
 ```
