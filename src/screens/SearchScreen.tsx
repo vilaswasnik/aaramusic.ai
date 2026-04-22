@@ -11,8 +11,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { SongListItem } from '../components/SongListItem';
+import { ApiFallbackBanner } from '../components/ApiFallbackBanner';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
-import { searchSongs } from '../services/musicService';
+import { searchSongs, resetFallbackDataFlag, isUsingFallbackData } from '../services/musicService';
 import { parseIntent, fetchMoodSongs } from '../services/aiService';
 import { Song } from '../types';
 
@@ -22,14 +23,17 @@ export const SearchScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [aiHint, setAiHint] = useState('');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [showFallbackBanner, setShowFallbackBanner] = useState(false);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim() === '') {
       setSearchResults([]);
       setAiHint('');
+      setShowFallbackBanner(false);
     } else {
       setLoading(true);
+      resetFallbackDataFlag();
       // Track recent searches
       if (query.trim().length > 2) {
         setRecentSearches((prev) => {
@@ -48,7 +52,14 @@ export const SearchScreen: React.FC = () => {
         setAiHint('');
       }
       setSearchResults(results);
+      setShowFallbackBanner(isUsingFallbackData());
       setLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    if (searchQuery.trim()) {
+      handleSearch(searchQuery);
     }
   };
 
@@ -90,6 +101,8 @@ export const SearchScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {showFallbackBanner && <ApiFallbackBanner onRetry={handleRetry} />}
+
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />

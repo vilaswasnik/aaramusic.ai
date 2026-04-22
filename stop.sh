@@ -1,10 +1,32 @@
 #!/bin/bash
-# Stop the proxy server and Expo dev server
+# ════════════════════════════════════════════════════════════
+#  Aara Music — stop all services
+#  Kills whatever is on port 8081 (proxy) and 8082 (Expo).
+# ════════════════════════════════════════════════════════════
 
-echo "Stopping Expo dev server (port 8081)..."
-lsof -ti :8081 | xargs kill -9 2>/dev/null && echo "Stopped." || echo "Not running."
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RESET='\033[0m'
 
-echo "Stopping proxy server (port 3001)..."
-lsof -ti :3001 | xargs kill -9 2>/dev/null && echo "Stopped." || echo "Not running."
+stop_port() {
+  local port=$1
+  local label=$2
+  local pids
+  pids=$(lsof -ti :"$port" 2>/dev/null || true)
+  if [[ -n "$pids" ]]; then
+    echo "$pids" | xargs kill -9 2>/dev/null || true
+    echo -e "${GREEN}  ✓${RESET} Stopped $label (port $port)"
+  else
+    echo -e "${YELLOW}  –${RESET} $label (port $port) — not running"
+  fi
+}
 
-echo "All services stopped."
+echo ""
+stop_port 8081 "Proxy / app server"
+stop_port 8082 "Expo dev server"
+
+# Also kill by process name in case ports have changed
+pkill -f "server/proxy.js" 2>/dev/null && echo -e "${GREEN}  ✓${RESET} Killed proxy.js process" || true
+pkill -f "expo start"       2>/dev/null && echo -e "${GREEN}  ✓${RESET} Killed expo start process" || true
+
+echo ""
+echo "  All Aara Music services stopped."
+echo ""

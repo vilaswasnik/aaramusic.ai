@@ -13,9 +13,16 @@ import { StatusBar } from 'expo-status-bar';
 import { SongCard } from '../components/SongCard';
 import { SongListItem } from '../components/SongListItem';
 import { GenreScreenSkeleton } from '../components/SkeletonLoader';
+import { ApiFallbackBanner } from '../components/ApiFallbackBanner';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
-import { fetchDJMixTopSongs, fetchDJMixPlaylists, searchSongs } from '../services/musicService';
+import {
+  fetchDJMixTopSongs,
+  fetchDJMixPlaylists,
+  searchSongs,
+  resetFallbackDataFlag,
+  isUsingFallbackData,
+} from '../services/musicService';
 import { Song } from '../types';
 import { useNavigation } from '@react-navigation/native';
 
@@ -40,6 +47,7 @@ export const DJMixScreen: React.FC = () => {
   const [moodSongs, setMoodSongs] = useState<Song[]>([]);
   const [activeMood, setActiveMood] = useState<string | null>(null);
   const [moodLoading, setMoodLoading] = useState(false);
+  const [showFallbackBanner, setShowFallbackBanner] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -47,12 +55,14 @@ export const DJMixScreen: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
+    resetFallbackDataFlag();
     const [songs, djPlaylists] = await Promise.all([
       fetchDJMixTopSongs(30),
       fetchDJMixPlaylists(),
     ]);
     setTopSongs(songs);
     setPlaylists(djPlaylists);
+    setShowFallbackBanner(isUsingFallbackData());
     setLoading(false);
   };
 
@@ -78,8 +88,10 @@ export const DJMixScreen: React.FC = () => {
     }
     setActiveMood(mood.label);
     setMoodLoading(true);
+    resetFallbackDataFlag();
     const results = await searchSongs(mood.query);
     setMoodSongs(results.slice(0, 10));
+    setShowFallbackBanner((prev) => prev || isUsingFallbackData());
     setMoodLoading(false);
   };
 
@@ -105,6 +117,8 @@ export const DJMixScreen: React.FC = () => {
           </View>
         ) : (
           <>
+            {showFallbackBanner && <ApiFallbackBanner onRetry={loadData} />}
+
             {/* Open DJ Mixer */}
             <TouchableOpacity
               style={styles.mixerLaunchBtn}

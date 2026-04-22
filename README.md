@@ -1,186 +1,210 @@
-# 🎵 Aara Music
+# Aara Music
 
-A modern, feature-rich music streaming application built with React Native (Expo) for iOS and Android. Inspired by the design and functionality of Apple Music and YouTube Music.
+A full-featured music streaming web app built with **React Native (Expo)** and powered by the **Deezer API**. Stream real songs, browse curated playlists across Bollywood, Hollywood, and South Indian genres, mix tracks, sing karaoke, and get AI-powered song recommendations — all in one app.
 
-## ✨ Features
-
-- 🎨 **Modern UI/UX** - Beautiful, intuitive interface with smooth animations
-- 🎵 **Music Playback** - Full-featured audio player with queue management
-- 🔍 **Search** - Search for songs, artists, and albums
-- 📚 **Library** - Organize your music with playlists and favorites
-- 🎯 **Navigation** - Seamless bottom tab navigation
-- 🌙 **Dark Theme** - Eye-friendly dark mode design
-- 📱 **Cross-Platform** - Works on both iOS and Android
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Expo Go app on your mobile device (for testing)
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/vilaswasnik/aaramusic.ai.git
-cd aaramusic.ai
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm start
-```
-
-4. Scan the QR code with:
-   - **iOS**: Camera app
-   - **Android**: Expo Go app
-
-## 📱 Available Scripts
-
-- `npm start` - Start the Expo development server
-- `npm run android` - Run on Android device/emulator
-- `npm run ios` - Run on iOS simulator (macOS only)
-- `npm run web` - Run in web browser
-
-## 🏗️ Project Structure
-
-```
-aaramusic.ai/
-├── App.tsx                 # Main app entry point
-├── src/
-│   ├── components/         # Reusable UI components
-│   │   ├── SongCard.tsx
-│   │   ├── SongListItem.tsx
-│   │   └── MiniPlayer.tsx
-│   ├── screens/           # App screens
-│   │   ├── HomeScreen.tsx
-│   │   ├── SearchScreen.tsx
-│   │   ├── LibraryScreen.tsx
-│   │   └── PlayerScreen.tsx
-│   ├── navigation/        # Navigation configuration
-│   │   └── AppNavigator.tsx
-│   ├── context/          # React Context (state management)
-│   │   └── MusicPlayerContext.tsx
-│   ├── types/            # TypeScript type definitions
-│   │   └── index.ts
-│   ├── data/             # Mock data
-│   │   └── mockData.ts
-│   └── constants/        # App constants (theme, colors)
-│       └── theme.ts
-├── assets/               # Images, icons, and other assets
-├── app.json             # Expo configuration
-└── package.json         # Dependencies and scripts
-```
-
-## 🎨 Screens
-
-### Home
-- Recently played songs
-- Featured playlists
-- Personalized recommendations
-
-### Search
-- Search functionality for songs, artists, albums
-- Browse by genre
-- Quick results display
-
-### Library
-- View all playlists
-- Access saved songs
-- Organize albums and artists
-
-### Player
-- Full-screen music player
-- Playback controls (play, pause, next, previous)
-- Progress bar
-- Shuffle and repeat modes
-- Like and share options
-
-## 🔧 Technology Stack
-
-- **Framework**: React Native (Expo)
-- **Language**: TypeScript
-- **Navigation**: React Navigation (Bottom Tabs + Stack)
-- **Audio**: Expo AV
-- **State Management**: React Context API
-- **UI Components**: React Native, Expo Vector Icons
-- **Styling**: StyleSheet, Linear Gradient
-
-## 📦 Key Dependencies
-
-```json
-{
-  "@react-navigation/native": "Navigation library",
-  "@react-navigation/bottom-tabs": "Bottom tab navigation",
-  "@react-navigation/native-stack": "Stack navigation",
-  "expo-av": "Audio/video playback",
-  "expo-linear-gradient": "Gradient backgrounds",
-  "@expo/vector-icons": "Icon library"
-}
-```
-
-## 🚀 Building for Production
-
-### iOS (Apple App Store)
-
-1. Configure app.json with your bundle identifier
-2. Build with EAS:
-```bash
-npm install -g eas-cli
-eas build --platform ios
-```
-
-### Android (Google Play Store)
-
-1. Configure app.json with your package name
-2. Build with EAS:
-```bash
-npm install -g eas-cli
-eas build --platform android
-```
-
-## 🔐 Firebase Integration (Optional)
-
-To add backend functionality:
-
-1. Create a Firebase project
-2. Install Firebase:
-```bash
-npm install firebase
-```
-3. Add Firebase config to your app
-4. Enable Authentication, Firestore, and Storage
-
-## 🎯 Roadmap
-
-- [ ] User authentication (Firebase)
-- [ ] Cloud storage for songs
-- [ ] Real-time playlist synchronization
-- [ ] Social features (sharing, collaborative playlists)
-- [ ] Offline playback
-- [ ] Audio equalizer
-- [ ] Lyrics display
-- [ ] Music recommendations AI
-
-## 📄 License
-
-ISC
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📧 Support
-
-For issues and questions, please open an issue on GitHub.
+Live at: [GitHub Pages](https://vilaswasnik.github.io/aaramusic.ai) &nbsp;|&nbsp; Production: [Render](https://aaramusic.onrender.com)
 
 ---
 
-**Made with ❤️ using React Native & Expo**
+## Features
+
+| Screen | Description |
+|---|---|
+| **Home** | Trending chart tracks with real 30-second previews |
+| **Bollywood** | Curated Hindi music playlists from Deezer |
+| **Hollywood** | Top English pop, rock, and charts |
+| **South Indian** | Tamil, Telugu, Kannada, and Malayalam playlists |
+| **Search** | Live search across all artists, albums, and tracks |
+| **DJ Mixer** | Load two decks and crossfade between tracks |
+| **Karaoke** | Lyrics synced to playback via lyrics.ovh |
+| **AI** | AI-powered song recommendations |
+| **Library** | Favourites, recently played, and custom queues |
+| **Player** | Full-screen player with queue, shuffle, repeat |
+
+**Audio**: 30-second Deezer preview streams piped through a local proxy — no CORS issues, works in browser.  
+**Fallback**: If the Deezer API is unreachable, the app falls back to built-in mock songs automatically with a retry banner.
+
+---
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18+
+- npm
+
+### Run locally
+
+```bash
+git clone https://github.com/vilaswasnik/aaramusic.ai.git
+cd aaramusic.ai
+npm install
+npm run web
+```
+
+Open **http://localhost:8081** in your browser.  
+The `npm run web` command runs `start.sh` which handles everything automatically:
+
+1. Pre-flight checks (Node, deps, server file)
+2. Cleans up stale processes on ports 8081 / 8082
+3. Starts the proxy server on **port 8081** (API + audio + Expo forwarding)
+4. Makes port 8081 public (GitHub Codespaces only)
+5. Starts the Expo Metro dev server on **port 8082** (internal)
+6. Self-tests the songs API and audio proxy
+7. Prints the URL and keeps running
+
+**Ctrl+C** stops all services cleanly. Logs are written to `.logs/proxy.log` and `.logs/expo.log`.
+
+### Stop
+
+```bash
+bash stop.sh
+```
+
+---
+
+## Architecture
+
+```
+Browser
+  └─► http://localhost:8081
+        │
+        ├── /health          →  Proxy status
+        ├── /api/*           →  Deezer REST API  (api.deezer.com)
+        ├── /audio?url=...   →  Deezer CDN mp3 stream (piped, supports Range)
+        ├── /lyrics/:a/:t    →  lyrics.ovh
+        └── /*               →  Expo Metro dev server (localhost:8082)
+```
+
+All traffic goes through **one port (8081)** — no cross-origin issues in browsers or Codespaces.
+
+### Production (Render)
+
+```
+Browser → Render (PORT env) → Express
+  ├── /api/*      →  Deezer API
+  ├── /audio      →  Deezer CDN stream
+  ├── /lyrics     →  lyrics.ovh
+  └── /*          →  Expo static web export (dist/)
+```
+
+---
+
+## Project Structure
+
+```
+aaramusic.ai/
+├── App.tsx                         # Root — loads fonts, renders AppNavigator
+├── app.json                        # Expo config
+├── start.sh                        # Dev start script (all-in-one)
+├── stop.sh                         # Stop all services
+├── render.yaml                     # Render deployment config
+│
+├── server/
+│   └── proxy.js                    # Express server: API proxy + audio stream + Expo forward
+│
+├── src/
+│   ├── screens/
+│   │   ├── HomeScreen.tsx
+│   │   ├── BollywoodScreen.tsx
+│   │   ├── HollywoodScreen.tsx
+│   │   ├── SouthIndianScreen.tsx
+│   │   ├── SearchScreen.tsx
+│   │   ├── PlayerScreen.tsx
+│   │   ├── LibraryScreen.tsx
+│   │   ├── DJMixerScreen.tsx
+│   │   ├── KaraokeScreen.tsx
+│   │   ├── KaraokePlayerScreen.tsx
+│   │   └── AIScreen.tsx
+│   │
+│   ├── context/
+│   │   └── MusicPlayerContext.tsx  # Audio engine (HTML5 on web, expo-av on native)
+│   │
+│   ├── services/
+│   │   ├── musicService.ts         # Deezer API calls + proxyAudioUrl()
+│   │   ├── lyricsService.ts        # lyrics.ovh integration
+│   │   ├── aiService.ts            # AI recommendation logic
+│   │   └── voiceService.ts         # Voice search
+│   │
+│   ├── components/
+│   │   ├── MiniPlayer.tsx          # Persistent bottom mini-player
+│   │   ├── SongCard.tsx
+│   │   ├── SongListItem.tsx
+│   │   ├── ApiFallbackBanner.tsx   # Warning when fallback data is used
+│   │   ├── EqualizerBars.tsx
+│   │   ├── AnimatedPressable.tsx
+│   │   ├── FadeInView.tsx
+│   │   └── SkeletonLoader.tsx
+│   │
+│   ├── navigation/
+│   │   └── AppNavigator.tsx        # Bottom tab + stack navigation
+│   │
+│   ├── config/
+│   │   └── firebase.ts
+│   ├── constants/
+│   │   └── theme.ts                # Colours, spacing, typography
+│   ├── data/
+│   │   └── mockData.ts             # Fallback songs
+│   └── types/
+│       └── index.ts
+│
+├── worker/                         # Cloudflare Worker (experimental)
+│   ├── index.js
+│   └── wrangler.toml
+│
+└── .github/
+    └── workflows/
+        └── deploy.yml              # CI: build → GitHub Pages + Cloudflare Worker
+```
+
+---
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run web` | Start everything for development (proxy + Expo) |
+| `npm run web:expo` | Start Expo only (no proxy) |
+| `npm run build:web` | Export static Expo web build to `dist/` |
+| `npm run serve` | Start production server (serves `dist/` + proxy) |
+| `npm start` | Expo start (mobile) |
+| `npm run android` | Run on Android device/emulator |
+| `npm run ios` | Run on iOS simulator (macOS only) |
+| `bash stop.sh` | Stop all dev services |
+
+---
+
+## Deployment
+
+### Render (recommended — full proxy support)
+
+1. Connect the GitHub repo to [Render](https://render.com)
+2. Render uses `render.yaml`:
+   - **Build**: `npm ci && npx expo export --platform web`
+   - **Start**: `npm run serve` (production proxy + static files)
+3. Set `NODE_ENV=production` (already in `render.yaml`)
+
+### GitHub Actions (automatic on push to `main`)
+
+The workflow in `.github/workflows/deploy.yml`:
+- Builds the Expo web export
+- Deploys the static build to **GitHub Pages**
+- Deploys the Cloudflare Worker (requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets)
+
+> Note: GitHub Pages hosts the static build only. The audio proxy and Deezer API require the Node.js server — use Render for full functionality.
+
+---
+
+## Environment & Secrets
+
+| Secret | Where | Purpose |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | GitHub repo secrets | Cloudflare Worker deployment |
+| `CLOUDFLARE_ACCOUNT_ID` | GitHub repo secrets | Cloudflare Worker deployment |
+
+No API keys are needed for Deezer — the public API is used directly via the proxy.
+
+---
+
+## License
+
+ISC

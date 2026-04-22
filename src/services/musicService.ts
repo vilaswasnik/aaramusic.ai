@@ -1,31 +1,68 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import { Song, Album, Playlist } from '../types';
+import { mockSongs, mockPlaylists } from '../data/mockData';
 
 // Cloudflare Worker proxy for production (GitHub Pages)
 const WORKER_URL = 'https://aaramusic-proxy.vilaswasnik.workers.dev';
 
-// Determine the correct API base URL
+// Determine the correct API base URL.
+// In dev, the proxy runs on the SAME port as the web app (8081), so we use window.location.origin.
+// In production the Cloudflare Worker handles it.
 const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
 
   if (typeof window !== 'undefined') {
-    const { protocol, hostname, origin } = window.location;
-    // Localhost dev: proxy on port 3001
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return `${protocol}//${hostname}:3001/api`;
-    }
-    // Codespace: replace the 8081 port in the hostname with 3001
-    if (hostname.includes('-8081.')) {
-      return `${origin.replace('-8081.', '-3001.')}/api`;
+    const { hostname, origin } = window.location;
+    // Localhost or Codespace dev: proxy is co-located, use same origin
+    if (hostname === 'localhost' || hostname === '127.0.0.1' ||
+        hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+      return `${origin}/api`;
     }
     // Production: use Cloudflare Worker proxy
     return `${WORKER_URL}/api`;
   }
-  return 'http://localhost:3001/api';
+  return 'http://localhost:8081/api';
 };
 
 const DEEZER_API = getApiBase();
+
+// Audio proxy base — always the same origin as the app so no cross-port issues.
+const getAudioProxyBase = (): string => {
+  if (Platform.OS !== 'web') return '';
+  if (typeof window === 'undefined') return 'http://localhost:8081';
+  const { hostname, origin } = window.location;
+  if (hostname === 'localhost' || hostname === '127.0.0.1' ||
+      hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+    return origin;
+  }
+  return WORKER_URL;
+};
+
+const AUDIO_PROXY_BASE = getAudioProxyBase();
+
+// Wrap a Deezer CDN preview URL so it streams through the proxy on web.
+// On native (iOS/Android) the raw CDN URL is used directly.
+const proxyAudioUrl = (previewUrl: string): string => {
+  if (!previewUrl) return previewUrl;
+  if (Platform.OS !== 'web' || !AUDIO_PROXY_BASE) return previewUrl;
+  return `${AUDIO_PROXY_BASE}/audio?url=${encodeURIComponent(previewUrl)}`;
+};
+
+const getMockSongs = (limit: number = 20): Song[] =>
+  mockSongs.slice(0, Math.min(limit, mockSongs.length));
+
+let fallbackDataUsed = false;
+
+const markFallbackDataUsed = (): void => {
+  fallbackDataUsed = true;
+};
+
+export const resetFallbackDataFlag = (): void => {
+  fallbackDataUsed = false;
+};
+
+export const isUsingFallbackData = (): boolean => fallbackDataUsed;
 
 // Fetch chart top songs
 export const fetchTopSongs = async (limit: number = 20): Promise<Song[]> => {
@@ -33,20 +70,23 @@ export const fetchTopSongs = async (limit: number = 20): Promise<Song[]> => {
     const response = await axios.get(`${DEEZER_API}/chart/0/tracks?limit=${limit}`);
     const tracks = response.data.data;
     
-    return tracks.map((track: any) => ({
-      id: track.id.toString(),
-      title: track.title,
-      artist: track.artist.name,
-      album: track.album.title,
-      duration: track.duration,
-      coverArt: track.album.cover_big || track.album.cover_medium,
-      audioUrl: track.preview, // 30-second preview
-      genre: 'Pop',
-      releaseYear: new Date(track.release_date).getFullYear() || 2024,
-    }));
+    return tracks
+      .filter((track: any) => !!track.preview)
+      .map((track: any) => ({
+        id: track.id.toString(),
+        title: track.title,
+        artist: track.artist.name,
+        album: track.album.title,
+        duration: track.duration,
+        coverArt: track.album.cover_big || track.album.cover_medium,
+        audioUrl: proxyAudioUrl(track.preview), // 30-second preview
+        genre: 'Pop',
+        releaseYear: new Date(track.release_date).getFullYear() || 2024,
+      }));
   } catch (error) {
     console.error('Error fetching songs from Deezer:', error);
-    return [];
+    markFallbackDataUsed();
+    return mockSongs;
   }
 };
 
@@ -56,19 +96,22 @@ export const searchSongs = async (query: string): Promise<Song[]> => {
     const response = await axios.get(`${DEEZER_API}/search?q=${encodeURIComponent(query)}&limit=20`);
     const tracks = response.data.data;
     
-    return tracks.map((track: any) => ({
-      id: track.id.toString(),
-      title: track.title,
-      artist: track.artist.name,
-      album: track.album.title,
-      duration: track.duration,
-      coverArt: track.album.cover_big || track.album.cover_medium,
-      audioUrl: track.preview,
-      genre: 'Various',
-      releaseYear: 2024,
-    }));
+    return tracks
+      .filter((track: any) => !!track.preview)
+      .map((track: any) => ({
+        id: track.id.toString(),
+        title: track.title,
+        artist: track.artist.name,
+        album: track.album.title,
+        duration: track.duration,
+        coverArt: track.album.cover_big || track.album.cover_medium,
+        audioUrl: proxyAudioUrl(track.preview),
+        genre: 'Various',
+        releaseYear: 2024,
+      }));
   } catch (error) {
     console.error('Error searching songs:', error);
+    markFallbackDataUsed();
     return [];
   }
 };
@@ -83,21 +126,24 @@ export const fetchSongsByGenre = async (genreId: number): Promise<Song[]> => {
       const artistResponse = await axios.get(`${DEEZER_API}/artist/${artists[0].id}/top?limit=20`);
       const tracks = artistResponse.data.data;
       
-      return tracks.map((track: any) => ({
-        id: track.id.toString(),
-        title: track.title,
-        artist: track.artist.name,
-        album: track.album.title,
-        duration: track.duration,
-        coverArt: track.album.cover_big || track.album.cover_medium,
-        audioUrl: track.preview,
-        genre: 'Various',
-        releaseYear: 2024,
-      }));
+      return tracks
+        .filter((track: any) => !!track.preview)
+        .map((track: any) => ({
+          id: track.id.toString(),
+          title: track.title,
+          artist: track.artist.name,
+          album: track.album.title,
+          duration: track.duration,
+          coverArt: track.album.cover_big || track.album.cover_medium,
+          audioUrl: proxyAudioUrl(track.preview),
+          genre: 'Various',
+          releaseYear: 2024,
+        }));
     }
     return [];
   } catch (error) {
     console.error('Error fetching genre songs:', error);
+    markFallbackDataUsed();
     return [];
   }
 };
@@ -119,6 +165,7 @@ export const fetchPlaylists = async (): Promise<Playlist[]> => {
     }));
   } catch (error) {
     console.error('Error fetching playlists:', error);
+    markFallbackDataUsed();
     return [];
   }
 };
@@ -129,20 +176,28 @@ export const fetchPlaylistTracks = async (playlistId: string, limit: number = 20
     const response = await axios.get(`${DEEZER_API}/playlist/${playlistId}/tracks?limit=${limit}`);
     const tracks = response.data.data;
 
-    return tracks.map((track: any) => ({
-      id: track.id.toString(),
-      title: track.title,
-      artist: track.artist.name,
-      album: track.album?.title || 'Unknown',
-      duration: track.duration,
-      coverArt: track.album?.cover_big || track.album?.cover_medium || '',
-      audioUrl: track.preview,
-      genre: 'Various',
-      releaseYear: 2024,
-    }));
+    if (!Array.isArray(tracks) || tracks.length === 0) {
+      markFallbackDataUsed();
+      return getMockSongs(limit);
+    }
+
+    return tracks
+      .filter((track: any) => !!track.preview)
+      .map((track: any) => ({
+        id: track.id.toString(),
+        title: track.title,
+        artist: track.artist.name,
+        album: track.album?.title || 'Unknown',
+        duration: track.duration,
+        coverArt: track.album?.cover_big || track.album?.cover_medium || '',
+        audioUrl: proxyAudioUrl(track.preview),
+        genre: 'Various',
+        releaseYear: 2024,
+      }));
   } catch (error) {
     console.error('Error fetching playlist tracks:', error);
-    return [];
+    markFallbackDataUsed();
+    return getMockSongs(limit);
   }
 };
 
@@ -169,10 +224,14 @@ export const fetchCuratedPlaylists = async (): Promise<{ name: string; descripti
       })
     );
     // Only return playlists that got songs (some IDs may be unavailable)
-    return results.filter((p) => p.songs.length > 0);
+    const populated = results.filter((p) => p.songs.length > 0);
+    if (populated.length > 0) return populated;
+    markFallbackDataUsed();
+    return mockPlaylists.map((p) => ({ name: p.name, description: p.description, songs: p.songs }));
   } catch (error) {
     console.error('Error fetching curated playlists:', error);
-    return [];
+    markFallbackDataUsed();
+    return mockPlaylists.map((p) => ({ name: p.name, description: p.description, songs: p.songs }));
   }
 };
 
@@ -217,6 +276,7 @@ export const fetchBollywoodPlaylists = async (): Promise<{ name: string; descrip
     return results.filter((p) => p.songs.length > 0);
   } catch (error) {
     console.error('Error fetching Bollywood playlists:', error);
+    markFallbackDataUsed();
     return [];
   }
 };
@@ -246,6 +306,7 @@ export const fetchHollywoodPlaylists = async (): Promise<{ name: string; descrip
     return results.filter((p) => p.songs.length > 0);
   } catch (error) {
     console.error('Error fetching Hollywood playlists:', error);
+    markFallbackDataUsed();
     return [];
   }
 };
@@ -276,6 +337,7 @@ export const fetchSouthIndianPlaylists = async (): Promise<{ name: string; descr
     return results.filter((p) => p.songs.length > 0);
   } catch (error) {
     console.error('Error fetching South Indian playlists:', error);
+    markFallbackDataUsed();
     return [];
   }
 };
@@ -305,6 +367,7 @@ export const fetchDJMixPlaylists = async (): Promise<{ name: string; description
     return results.filter((p) => p.songs.length > 0);
   } catch (error) {
     console.error('Error fetching DJ Mix playlists:', error);
+    markFallbackDataUsed();
     return [];
   }
 };

@@ -14,9 +14,16 @@ import { SongCard } from '../components/SongCard';
 import { SongListItem } from '../components/SongListItem';
 import { GenreScreenSkeleton } from '../components/SkeletonLoader';
 import { FadeInView } from '../components/FadeInView';
+import { ApiFallbackBanner } from '../components/ApiFallbackBanner';
 import { colors, spacing, typography } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
-import { fetchHollywoodTopSongs, fetchHollywoodPlaylists, searchSongs } from '../services/musicService';
+import {
+  fetchHollywoodTopSongs,
+  fetchHollywoodPlaylists,
+  searchSongs,
+  resetFallbackDataFlag,
+  isUsingFallbackData,
+} from '../services/musicService';
 import { Song } from '../types';
 
 const ACCENT = '#1DB954';
@@ -38,6 +45,7 @@ export const HollywoodScreen: React.FC = () => {
   const [moodSongs, setMoodSongs] = useState<Song[]>([]);
   const [activeMood, setActiveMood] = useState<string | null>(null);
   const [moodLoading, setMoodLoading] = useState(false);
+  const [showFallbackBanner, setShowFallbackBanner] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -45,12 +53,14 @@ export const HollywoodScreen: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
+    resetFallbackDataFlag();
     const [songs, hollywoodPlaylists] = await Promise.all([
       fetchHollywoodTopSongs(30),
       fetchHollywoodPlaylists(),
     ]);
     setTopSongs(songs);
     setPlaylists(hollywoodPlaylists);
+    setShowFallbackBanner(isUsingFallbackData());
     setLoading(false);
   };
 
@@ -76,8 +86,10 @@ export const HollywoodScreen: React.FC = () => {
     }
     setActiveMood(mood.label);
     setMoodLoading(true);
+    resetFallbackDataFlag();
     const results = await searchSongs(mood.query);
     setMoodSongs(results.slice(0, 10));
+    setShowFallbackBanner((prev) => prev || isUsingFallbackData());
     setMoodLoading(false);
   };
 
@@ -103,6 +115,8 @@ export const HollywoodScreen: React.FC = () => {
           </View>
         ) : (
           <>
+            {showFallbackBanner && <ApiFallbackBanner onRetry={loadData} />}
+
             {/* AI Mood Quick Play */}
             <View style={styles.section}>
               <View style={styles.aiSectionHeader}>

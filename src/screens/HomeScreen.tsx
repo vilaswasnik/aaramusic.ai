@@ -17,9 +17,16 @@ import { SongCard } from '../components/SongCard';
 import { HomeScreenSkeleton } from '../components/SkeletonLoader';
 import { FadeInView } from '../components/FadeInView';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { ApiFallbackBanner } from '../components/ApiFallbackBanner';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
-import { fetchTopSongs, fetchCuratedPlaylists, searchSongs } from '../services/musicService';
+import {
+  fetchTopSongs,
+  fetchCuratedPlaylists,
+  searchSongs,
+  resetFallbackDataFlag,
+  isUsingFallbackData,
+} from '../services/musicService';
 import {
   getSmartRecommendations,
   getMoods,
@@ -48,6 +55,7 @@ export const HomeScreen: React.FC = () => {
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
   const [aiRecs, setAiRecs] = useState<{ title: string; songs: Song[] }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showFallbackBanner, setShowFallbackBanner] = useState(false);
 
   // AI Chat state
   const [aiQuery, setAiQuery] = useState('');
@@ -82,12 +90,14 @@ export const HomeScreen: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
+    resetFallbackDataFlag();
     const [songs, curatedPlaylists] = await Promise.all([
       fetchTopSongs(50),
       fetchCuratedPlaylists(),
     ]);
     setTopSongs(songs);
     setPlaylists(curatedPlaylists);
+    setShowFallbackBanner(isUsingFallbackData());
     setLoading(false);
   };
 
@@ -280,6 +290,8 @@ export const HomeScreen: React.FC = () => {
           <HomeScreenSkeleton />
         ) : (
           <>
+            {showFallbackBanner && <ApiFallbackBanner onRetry={loadData} />}
+
             {/* ===== AI SECTION ===== */}
             <FadeInView delay={0}>
               <View style={styles.aiSection}>
