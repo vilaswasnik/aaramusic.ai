@@ -10,7 +10,8 @@
     "web": "bash ./start.sh",
     "web:expo": "expo start --web",
     "build:web": "expo export --platform web",
-    "serve": "NODE_ENV=production node server/proxy.js"
+    "serve": "NODE_ENV=production node server/proxy.js",
+    "render-start": "node server/proxy.js"
   },
   "repository": {
     "type": "git",

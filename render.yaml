@@ -3,7 +3,9 @@ services:
     name: aaramusic
     runtime: node
     buildCommand: npm ci && npx expo export --platform web
-    startCommand: npm run serve
+    startCommand: node server/proxy.js
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: "20"
