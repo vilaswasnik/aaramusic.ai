@@ -2,16 +2,15 @@
   "name": "aaramusic.ai",
   "version": "1.0.0",
   "description": "Aara Music - Modern Music Streaming App",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server/proxy.js",
+    "start": "node server.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "bash ./start.sh",
     "web:expo": "expo start --web",
     "build:web": "expo export --platform web",
-    "serve": "NODE_ENV=production node server/proxy.js",
-    "render-start": "node server/proxy.js"
+    "serve": "node server.js"
   },
   "repository": {
     "type": "git",
