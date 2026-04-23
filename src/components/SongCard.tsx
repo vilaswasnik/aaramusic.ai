@@ -14,7 +14,7 @@ import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { AnimatedPressable } from './AnimatedPressable';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.45;
+const CARD_WIDTH = width * 0.35;
 
 interface SongCardProps {
   song: Song;
@@ -34,7 +34,7 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onPress, size = 'mediu
     }
   };
 
-  const cardSize = size === 'small' ? 120 : size === 'large' ? 200 : CARD_WIDTH;
+  const cardSize = size === 'small' ? 100 : size === 'large' ? 160 : CARD_WIDTH;
 
   return (
     <AnimatedPressable onPress={handlePress} style={[styles.container, { width: cardSize }]}>
@@ -93,9 +93,9 @@ const styles = StyleSheet.create({
     right: 8,
   },
   playCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(0,0,0,0.6)',
     alignItems: 'center',
     justifyContent: 'center',
