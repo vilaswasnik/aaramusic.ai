@@ -88,22 +88,33 @@ export const HomeScreen: React.FC = () => {
   const moods = getMoods();
 
   const loadData = async () => {
-    const [songs, curatedPlaylists, bollywood, hollywood, southIndian, marathi] = await Promise.all([
-      fetchTopSongs(50),
-      fetchCuratedPlaylists(),
-      fetchBollywoodTopSongs(10),
-      fetchHollywoodTopSongs(10),
-      fetchSouthIndianTopSongs(10),
-      searchSongs('marathi songs hits').then(results => results.slice(0, 10)),
-    ]);
-    setTopSongs(songs);
-    setPlaylists(curatedPlaylists);
-    setBollywoodSongs(bollywood);
-    setHollywoodSongs(hollywood);
-    setSouthIndianSongs(southIndian);
-    setMarathiSongs(marathi);
-    setShowFallbackBanner(isUsingFallbackData());
-    setLoading(false);
+    try {
+      const [songs, curatedPlaylists, bollywood, hollywood, southIndian, marathi] = await Promise.all([
+        fetchTopSongs(50),
+        fetchCuratedPlaylists(),
+        fetchBollywoodTopSongs(10),
+        fetchHollywoodTopSongs(10),
+        fetchSouthIndianTopSongs(10),
+        searchSongs('marathi songs hits').then(results => results.slice(0, 10)),
+      ]);
+      console.log('Genre songs loaded:', {
+        bollywood: bollywood.length,
+        hollywood: hollywood.length, 
+        southIndian: southIndian.length,
+        marathi: marathi.length
+      });
+      setTopSongs(songs);
+      setPlaylists(curatedPlaylists);
+      setBollywoodSongs(bollywood);
+      setHollywoodSongs(hollywood);
+      setSouthIndianSongs(southIndian);
+      setMarathiSongs(marathi);
+      setShowFallbackBanner(isUsingFallbackData());
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
