@@ -7,7 +7,7 @@ import { mockSongs, mockPlaylists } from '../data/mockData';
 const WORKER_URL = 'https://aaramusic-proxy.vilaswasnik.workers.dev';
 
 // Determine the correct API base URL.
-// In dev, the proxy runs on the SAME port as the web app (8081), so we use window.location.origin.
+// In dev, the proxy runs on the SAME port as the web app (8082), so we use window.location.origin.
 // In production the Cloudflare Worker handles it.
 const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
@@ -22,7 +22,7 @@ const getApiBase = (): string => {
     // Production: use Cloudflare Worker proxy
     return `${WORKER_URL}/api`;
   }
-  return 'http://localhost:8081/api';
+  return 'http://localhost:8082/api';
 };
 
 const DEEZER_API = getApiBase();
@@ -30,7 +30,7 @@ const DEEZER_API = getApiBase();
 // Audio proxy base — always the same origin as the app so no cross-port issues.
 const getAudioProxyBase = (): string => {
   if (Platform.OS !== 'web') return '';
-  if (typeof window === 'undefined') return 'http://localhost:8081';
+  if (typeof window === 'undefined') return 'http://localhost:8082';
   const { hostname, origin } = window.location;
   if (hostname === 'localhost' || hostname === '127.0.0.1' ||
       hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {

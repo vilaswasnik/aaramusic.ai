@@ -7,17 +7,15 @@ const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
 
   if (typeof window !== 'undefined') {
-    const { protocol, hostname, origin } = window.location;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return `${protocol}//${hostname}:3001/lyrics`;
-    }
-    if (hostname.includes('-8081.')) {
-      return `${origin.replace('-8081.', '-3001.')}/lyrics`;
+    const { hostname, origin } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1' ||
+        hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+      return `${origin}/lyrics`;
     }
     // Production: use Cloudflare Worker proxy
     return `${WORKER_URL}/lyrics`;
   }
-  return 'http://localhost:3001/lyrics';
+  return 'http://localhost:8082/lyrics';
 };
 
 const LYRICS_API = getLyricsBase();
