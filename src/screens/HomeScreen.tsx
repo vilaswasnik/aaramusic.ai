@@ -301,13 +301,24 @@ export const HomeScreen: React.FC = () => {
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <View style={styles.headerRow}>
           <View style={styles.logoContainer}>
+            {/* Outer gradient ring */}
             <LinearGradient
-              colors={['#d500f9', '#ff0066']}
+              colors={['#d500f9', '#ff0066', '#ff6b35']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.logoGradient}
+              style={styles.logoOuterRing}
             >
-              <Ionicons name="musical-notes" size={20} color="#fff" />
+              {/* Inner circle */}
+              <View style={styles.logoInnerCircle}>
+                {/* Stylized "A" made of bars representing sound waves */}
+                <View style={styles.logoWavesContainer}>
+                  <View style={[styles.logoWave, styles.logoWave1]} />
+                  <View style={[styles.logoWave, styles.logoWave2]} />
+                  <View style={[styles.logoWave, styles.logoWave3]} />
+                  <View style={[styles.logoWave, styles.logoWave4]} />
+                  <View style={[styles.logoWave, styles.logoWave5]} />
+                </View>
+              </View>
             </LinearGradient>
           </View>
           <Text style={styles.headerTitle}>Aara Music</Text>
@@ -875,17 +886,52 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginRight: 4,
   },
-  logoGradient: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+  logoOuterRing: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 2,
     shadowColor: '#d500f9',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  logoInnerCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#0a0a0a',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoWavesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    height: 16,
+  },
+  logoWave: {
+    width: 2,
+    backgroundColor: '#fff',
+    borderRadius: 1,
+  },
+  logoWave1: {
+    height: 6,
+  },
+  logoWave2: {
+    height: 12,
+  },
+  logoWave3: {
+    height: 16,
+  },
+  logoWave4: {
+    height: 10,
+  },
+  logoWave5: {
+    height: 7,
   },
   aiBadge: {
     flexDirection: 'row',
