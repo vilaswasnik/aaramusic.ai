@@ -2,6 +2,8 @@ services:
   - type: web
     name: aaramusic
     runtime: node
+    region: oregon
+    plan: free
     buildCommand: npm ci && npm run build:render
     startCommand: node server.js
     envVars:
