@@ -474,6 +474,59 @@ export const HomeScreen: React.FC = () => {
               </View>
             </FadeInView>
 
+            {/* ===== YOUR MUSIC SECTIONS ===== */}
+
+            {/* Recently Played */}
+            {listeningHistory.length > 0 && (
+              <FadeInView delay={50}>
+                <View style={styles.section}>
+                  <View style={styles.sectionHeader}>
+                    <Ionicons name="time" size={20} color={colors.primary} />
+                    <Text style={styles.sectionTitle}>Recently Played</Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalScroll}
+                  >
+                    {listeningHistory.slice(0, 15).map((song) => (
+                      <SongCard key={song.id + '-history'} song={song} />
+                    ))}
+                  </ScrollView>
+                </View>
+              </FadeInView>
+            )}
+
+            {/* Liked Songs / Your Favorites */}
+            {likedSongs.length > 0 && (
+              <FadeInView delay={75}>
+                <View style={styles.section}>
+                  <View style={styles.sectionHeaderRow}>
+                    <View style={styles.sectionHeader}>
+                      <Ionicons name="heart" size={20} color="#FF1744" />
+                      <Text style={styles.sectionTitle}>Your Favorites</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.playAllBtn}
+                      onPress={() => playSong(likedSongs[0], likedSongs)}
+                    >
+                      <Ionicons name="play" size={14} color="#fff" />
+                      <Text style={styles.playAllText}>Play All {likedSongs.length}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalScroll}
+                  >
+                    {likedSongs.slice(0, 15).map((song) => (
+                      <SongCard key={song.id + '-liked'} song={song} />
+                    ))}
+                  </ScrollView>
+                </View>
+              </FadeInView>
+            )}
+
             {/* ===== MUSIC SECTIONS ===== */}
 
             {/* Top Chart Hits */}
@@ -672,6 +725,13 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.md,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: spacing.md,
+    marginBottom: spacing.sm,
   },
   scrollView: {
     flex: 1,
