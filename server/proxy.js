@@ -89,9 +89,13 @@ app.use('/api', async (req, res) => {
 if (IS_PRODUCTION) {
   // Serve the exported Expo web build
   const distPath = path.join(__dirname, '..', 'dist');
+  
+  // Serve static files
   app.use(express.static(distPath));
-  // Catch-all route for client-side routing
-  app.get('*', (_req, res) => {
+  
+  // Fallback to index.html for client-side routing (SPA)
+  // This catches any request that didn't match a static file
+  app.use((req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
