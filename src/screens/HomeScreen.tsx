@@ -621,63 +621,79 @@ export const HomeScreen: React.FC = () => {
             {/* Genre Content */}
             <FadeInView delay={220}>
               <View style={styles.section}>
-                {activeGenreTab === 'bollywood' && bollywoodSongs.length > 0 && (
+                {activeGenreTab === 'bollywood' && (
                   <>
                     <Text style={styles.sectionTitle}>Bollywood Hits</Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.horizontalScroll}
-                    >
-                      {bollywoodSongs.map((song) => (
-                        <SongCard key={song.id} song={song} />
-                      ))}
-                    </ScrollView>
+                    {bollywoodSongs.length > 0 ? (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.horizontalScroll}
+                      >
+                        {bollywoodSongs.map((song) => (
+                          <SongCard key={song.id} song={song} />
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <Text style={styles.emptyGenreText}>Loading Bollywood songs...</Text>
+                    )}
                   </>
                 )}
 
-                {activeGenreTab === 'hollywood' && hollywoodSongs.length > 0 && (
+                {activeGenreTab === 'hollywood' && (
                   <>
                     <Text style={styles.sectionTitle}>Hollywood Hits</Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.horizontalScroll}
-                    >
-                      {hollywoodSongs.map((song) => (
-                        <SongCard key={song.id} song={song} />
-                      ))}
-                    </ScrollView>
+                    {hollywoodSongs.length > 0 ? (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.horizontalScroll}
+                      >
+                        {hollywoodSongs.map((song) => (
+                          <SongCard key={song.id} song={song} />
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <Text style={styles.emptyGenreText}>Loading Hollywood songs...</Text>
+                    )}
                   </>
                 )}
 
-                {activeGenreTab === 'south' && southIndianSongs.length > 0 && (
+                {activeGenreTab === 'south' && (
                   <>
                     <Text style={styles.sectionTitle}>South Indian Hits</Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.horizontalScroll}
-                    >
-                      {southIndianSongs.map((song) => (
-                        <SongCard key={song.id} song={song} />
-                      ))}
-                    </ScrollView>
+                    {southIndianSongs.length > 0 ? (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.horizontalScroll}
+                      >
+                        {southIndianSongs.map((song) => (
+                          <SongCard key={song.id} song={song} />
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <Text style={styles.emptyGenreText}>Loading South Indian songs...</Text>
+                    )}
                   </>
                 )}
 
-                {activeGenreTab === 'marathi' && marathiSongs.length > 0 && (
+                {activeGenreTab === 'marathi' && (
                   <>
                     <Text style={styles.sectionTitle}>Marathi Hits</Text>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.horizontalScroll}
-                    >
-                      {marathiSongs.map((song) => (
-                        <SongCard key={song.id} song={song} />
-                      ))}
-                    </ScrollView>
+                    {marathiSongs.length > 0 ? (
+                      <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.horizontalScroll}
+                      >
+                        {marathiSongs.map((song) => (
+                          <SongCard key={song.id} song={song} />
+                        ))}
+                      </ScrollView>
+                    ) : (
+                      <Text style={styles.emptyGenreText}>Loading Marathi songs...</Text>
+                    )}
                   </>
                 )}
               </View>
@@ -829,9 +845,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   headerGenreTab: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 16,
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
@@ -842,11 +858,18 @@ const styles = StyleSheet.create({
   },
   headerGenreTabText: {
     color: colors.textSecondary,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
   },
   headerGenreTabTextActive: {
     color: '#fff',
+  },
+  emptyGenreText: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.lg,
+    fontStyle: 'italic',
   },
   headerTitle: {
     ...typography.h1,
