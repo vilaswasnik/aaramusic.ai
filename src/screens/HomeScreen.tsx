@@ -287,7 +287,10 @@ export const HomeScreen: React.FC = () => {
         colors={[colors.gradient1, colors.background]}
         style={styles.header}
       >
-        <Text style={styles.greeting}>{getGreeting()}</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.greeting}>{getGreeting()}</Text>
+          <Text style={styles.exploreGenreText}>Explore by Genre</Text>
+        </View>
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>Aara Music</Text>
           <View style={styles.aiBadge}>
@@ -813,10 +816,20 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: spacing.md,
   },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   greeting: {
     color: colors.textSecondary,
     fontSize: 14,
-    marginBottom: 4,
+  },
+  exploreGenreText: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '600',
   },
   headerTitle: {
     ...typography.h1,
