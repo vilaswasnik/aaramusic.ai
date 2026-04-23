@@ -217,7 +217,7 @@ export const PlayerScreen: React.FC = () => {
                 >
                   <Ionicons
                     name={currentSong && isLiked(currentSong.id) ? 'heart' : 'heart-outline'}
-                    size={24}
+                    size={22}
                     color={currentSong && isLiked(currentSong.id) ? '#fff' : colors.text}
                   />
                 </LinearGradient>
@@ -250,7 +250,7 @@ export const PlayerScreen: React.FC = () => {
           {/* Previous Button */}
           <TouchableOpacity onPress={previous} style={styles.sideControl}>
             <View style={styles.sideControlInner}>
-              <Ionicons name="play-back" size={24} color={colors.text} />
+              <Ionicons name="play-back" size={22} color={colors.text} />
             </View>
           </TouchableOpacity>
 
@@ -265,7 +265,7 @@ export const PlayerScreen: React.FC = () => {
               <View style={styles.centerControlInner}>
                 <Ionicons
                   name={isPlaying ? 'pause' : 'play'}
-                  size={36}
+                  size={30}
                   color="#fff"
                   style={!isPlaying && { marginLeft: 4 }}
                 />
@@ -280,7 +280,7 @@ export const PlayerScreen: React.FC = () => {
           {/* Next Button */}
           <TouchableOpacity onPress={next} style={styles.sideControl}>
             <View style={styles.sideControlInner}>
-              <Ionicons name="play-forward" size={24} color={colors.text} />
+              <Ionicons name="play-forward" size={22} color={colors.text} />
             </View>
           </TouchableOpacity>
         </View>
@@ -353,28 +353,28 @@ export const PlayerScreen: React.FC = () => {
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionItem}>
             <View style={styles.actionIcon}>
-              <Ionicons name="list" size={18} color={colors.text} />
+              <Ionicons name="list" size={16} color={colors.text} />
             </View>
             <Text style={styles.actionLabel}>Queue</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionItem}>
             <View style={styles.actionIcon}>
-              <Ionicons name="add" size={18} color={colors.text} />
+              <Ionicons name="add" size={16} color={colors.text} />
             </View>
             <Text style={styles.actionLabel}>Playlist</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionItem}>
             <View style={styles.actionIcon}>
-              <Ionicons name="share-social" size={18} color={colors.text} />
+              <Ionicons name="share-social" size={16} color={colors.text} />
             </View>
             <Text style={styles.actionLabel}>Share</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionItem}>
             <View style={styles.actionIcon}>
-              <Ionicons name="download-outline" size={18} color={colors.text} />
+              <Ionicons name="download-outline" size={16} color={colors.text} />
             </View>
             <Text style={styles.actionLabel}>Save</Text>
           </TouchableOpacity>
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.md,
   },
   
   // Minimal Header with Dots
@@ -438,17 +438,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingTop: 44,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
   },
   backButton: {
     width: 44,
   },
   backButtonCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -474,9 +474,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   moreButtonCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -487,8 +487,8 @@ const styles = StyleSheet.create({
   // Floating Circular Artwork
   artworkSection: {
     alignItems: 'center',
-    marginTop: spacing.xl,
-    marginBottom: spacing.xl,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
   },
   artworkFloat: {
     position: 'relative',
@@ -501,23 +501,23 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   glowRing1: {
-    width: width * 0.72,
-    height: width * 0.72,
+    width: width * 0.60,
+    height: width * 0.60,
     borderColor: 'rgba(213,0,249,0.3)',
   },
   glowRing2: {
-    width: width * 0.76,
-    height: width * 0.76,
+    width: width * 0.64,
+    height: width * 0.64,
     borderColor: 'rgba(255,0,102,0.2)',
   },
   glowRing3: {
-    width: width * 0.80,
-    height: width * 0.80,
+    width: width * 0.68,
+    height: width * 0.68,
     borderColor: 'rgba(255,107,53,0.1)',
   },
   artwork: {
-    width: width * 0.65,
-    height: width * 0.65,
+    width: width * 0.55,
+    height: width * 0.55,
     borderRadius: 1000,
     borderWidth: 4,
     borderColor: 'rgba(255,255,255,0.1)',
@@ -554,15 +554,15 @@ const styles = StyleSheet.create({
   
   // Info Card
   infoSection: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 20,
-    padding: spacing.md,
+    borderRadius: 16,
+    padding: spacing.sm,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
   },
@@ -571,21 +571,21 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 4,
-    lineHeight: 28,
+    marginBottom: 3,
+    lineHeight: 22,
   },
   artist: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.textSecondary,
     fontWeight: '500',
   },
   floatingLike: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
   },
   floatingLikeActive: {
     shadowColor: '#ff0066',
@@ -595,9 +595,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   floatingLikeGradient: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -606,8 +606,8 @@ const styles = StyleSheet.create({
   
   // Radial Progress
   progressSection: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
   },
   timeRow: {
     flexDirection: 'row',
@@ -654,18 +654,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.xl,
-    gap: spacing.lg,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.md,
   },
   sideControl: {
-    width: 60,
-    height: 60,
+    width: 54,
+    height: 54,
   },
   sideControlInner: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -674,13 +674,13 @@ const styles = StyleSheet.create({
   },
   centerControlWrapper: {
     position: 'relative',
-    width: 90,
-    height: 90,
+    width: 76,
+    height: 76,
   },
   centerControl: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#d500f9',
@@ -690,9 +690,9 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   centerControlInner: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -701,11 +701,11 @@ const styles = StyleSheet.create({
   },
   centerControlRing: {
     position: 'absolute',
-    top: -6,
-    left: -6,
-    width: 102,
-    height: 102,
-    borderRadius: 51,
+    top: -5,
+    left: -5,
+    width: 86,
+    height: 86,
+    borderRadius: 43,
     borderWidth: 2,
     borderColor: 'rgba(213,0,249,0.4)',
   },
@@ -713,13 +713,13 @@ const styles = StyleSheet.create({
   // Feature Cards Grid
   featuresGrid: {
     flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
-    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.xs,
   },
   featureCard: {
     flex: 1,
-    height: 80,
+    height: 70,
   },
   featureCardGradient: {
     flex: 1,
@@ -759,17 +759,17 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
   actionItem: {
     alignItems: 'center',
     gap: 8,
   },
   actionIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
