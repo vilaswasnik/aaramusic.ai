@@ -300,45 +300,7 @@ export const HomeScreen: React.FC = () => {
       >
         <View style={styles.headerTop}>
           <Text style={styles.greeting}>{getGreeting()}</Text>
-          
-          {/* Genre Tabs in Header */}
-          <View style={styles.headerGenreTabs}>
-            <TouchableOpacity
-              style={[styles.headerGenreTab, activeGenreTab === 'bollywood' && styles.headerGenreTabActive]}
-              onPress={() => setActiveGenreTab('bollywood')}
-            >
-              <Text style={[styles.headerGenreTabText, activeGenreTab === 'bollywood' && styles.headerGenreTabTextActive]}>
-                Bollywood
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.headerGenreTab, activeGenreTab === 'hollywood' && styles.headerGenreTabActive]}
-              onPress={() => setActiveGenreTab('hollywood')}
-            >
-              <Text style={[styles.headerGenreTabText, activeGenreTab === 'hollywood' && styles.headerGenreTabTextActive]}>
-                Hollywood
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.headerGenreTab, activeGenreTab === 'south' && styles.headerGenreTabActive]}
-              onPress={() => setActiveGenreTab('south')}
-            >
-              <Text style={[styles.headerGenreTabText, activeGenreTab === 'south' && styles.headerGenreTabTextActive]}>
-                South
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.headerGenreTab, activeGenreTab === 'marathi' && styles.headerGenreTabActive]}
-              onPress={() => setActiveGenreTab('marathi')}
-            >
-              <Text style={[styles.headerGenreTabText, activeGenreTab === 'marathi' && styles.headerGenreTabTextActive]}>
-                Marathi
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.exploreGenreText}>Explore by Genre</Text>
         </View>
         <View style={styles.headerRow}>
           <Text style={styles.headerTitle}>Aara Music</Text>
@@ -629,84 +591,133 @@ export const HomeScreen: React.FC = () => {
             </View>
             </FadeInView>
 
-            {/* Genre Content */}
+            {/* Genre Tabs */}
             <FadeInView delay={220}>
               <View style={styles.section}>
-                {activeGenreTab === 'bollywood' && (
-                  <>
-                    <Text style={styles.sectionTitle}>Bollywood Hits</Text>
-                    {bollywoodSongs.length > 0 ? (
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.horizontalScroll}
-                      >
-                        {bollywoodSongs.map((song) => (
-                          <SongCard key={song.id} song={song} />
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <Text style={styles.emptyGenreText}>Loading Bollywood songs...</Text>
-                    )}
-                  </>
-                )}
+                <Text style={styles.sectionTitle}>Explore by Genre</Text>
+                
+                {/* Tab Buttons */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.tabsContainer}
+                  contentContainerStyle={styles.tabsContent}
+                >
+                  <TouchableOpacity
+                    style={[styles.genreTab, activeGenreTab === 'bollywood' && styles.genreTabActive]}
+                    onPress={() => setActiveGenreTab('bollywood')}
+                  >
+                    <Text style={styles.genreTabEmoji}>🎬</Text>
+                    <Text style={[styles.genreTabText, activeGenreTab === 'bollywood' && styles.genreTabTextActive]}>
+                      Bollywood
+                    </Text>
+                  </TouchableOpacity>
 
-                {activeGenreTab === 'hollywood' && (
-                  <>
-                    <Text style={styles.sectionTitle}>Hollywood Hits</Text>
-                    {hollywoodSongs.length > 0 ? (
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.horizontalScroll}
-                      >
-                        {hollywoodSongs.map((song) => (
-                          <SongCard key={song.id} song={song} />
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <Text style={styles.emptyGenreText}>Loading Hollywood songs...</Text>
-                    )}
-                  </>
-                )}
+                  <TouchableOpacity
+                    style={[styles.genreTab, activeGenreTab === 'hollywood' && styles.genreTabActive]}
+                    onPress={() => setActiveGenreTab('hollywood')}
+                  >
+                    <Text style={styles.genreTabEmoji}>🎸</Text>
+                    <Text style={[styles.genreTabText, activeGenreTab === 'hollywood' && styles.genreTabTextActive]}>
+                      Hollywood
+                    </Text>
+                  </TouchableOpacity>
 
-                {activeGenreTab === 'south' && (
-                  <>
-                    <Text style={styles.sectionTitle}>South Indian Hits</Text>
-                    {southIndianSongs.length > 0 ? (
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.horizontalScroll}
-                      >
-                        {southIndianSongs.map((song) => (
-                          <SongCard key={song.id} song={song} />
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <Text style={styles.emptyGenreText}>Loading South Indian songs...</Text>
-                    )}
-                  </>
-                )}
+                  <TouchableOpacity
+                    style={[styles.genreTab, activeGenreTab === 'south' && styles.genreTabActive]}
+                    onPress={() => setActiveGenreTab('south')}
+                  >
+                    <Text style={styles.genreTabEmoji}>🎵</Text>
+                    <Text style={[styles.genreTabText, activeGenreTab === 'south' && styles.genreTabTextActive]}>
+                      South Indian
+                    </Text>
+                  </TouchableOpacity>
 
-                {activeGenreTab === 'marathi' && (
-                  <>
-                    <Text style={styles.sectionTitle}>Marathi Hits</Text>
-                    {marathiSongs.length > 0 ? (
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.horizontalScroll}
-                      >
-                        {marathiSongs.map((song) => (
-                          <SongCard key={song.id} song={song} />
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <Text style={styles.emptyGenreText}>Loading Marathi songs...</Text>
-                    )}
-                  </>
-                )}
+                  <TouchableOpacity
+                    style={[styles.genreTab, activeGenreTab === 'marathi' && styles.genreTabActive]}
+                    onPress={() => setActiveGenreTab('marathi')}
+                  >
+                    <Text style={styles.genreTabEmoji}>🌺</Text>
+                    <Text style={[styles.genreTabText, activeGenreTab === 'marathi' && styles.genreTabTextActive]}>
+                      Marathi
+                    </Text>
+                  </TouchableOpacity>
+                </ScrollView>
+
+                {/* Tab Content */}
+                <View style={styles.genreContent}>
+                  {activeGenreTab === 'bollywood' && (
+                    <>
+                      {bollywoodSongs.length > 0 ? (
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.horizontalScroll}
+                        >
+                          {bollywoodSongs.map((song) => (
+                            <SongCard key={song.id} song={song} />
+                          ))}
+                        </ScrollView>
+                      ) : (
+                        <Text style={styles.emptyGenreText}>Loading Bollywood songs...</Text>
+                      )}
+                    </>
+                  )}
+
+                  {activeGenreTab === 'hollywood' && (
+                    <>
+                      {hollywoodSongs.length > 0 ? (
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.horizontalScroll}
+                        >
+                          {hollywoodSongs.map((song) => (
+                            <SongCard key={song.id} song={song} />
+                          ))}
+                        </ScrollView>
+                      ) : (
+                        <Text style={styles.emptyGenreText}>Loading Hollywood songs...</Text>
+                      )}
+                    </>
+                  )}
+
+                  {activeGenreTab === 'south' && (
+                    <>
+                      {southIndianSongs.length > 0 ? (
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.horizontalScroll}
+                        >
+                          {southIndianSongs.map((song) => (
+                            <SongCard key={song.id} song={song} />
+                          ))}
+                        </ScrollView>
+                      ) : (
+                        <Text style={styles.emptyGenreText}>Loading South Indian songs...</Text>
+                      )}
+                    </>
+                  )}
+
+                  {activeGenreTab === 'marathi' && (
+                    <>
+                      {marathiSongs.length > 0 ? (
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.horizontalScroll}
+                        >
+                          {marathiSongs.map((song) => (
+                            <SongCard key={song.id} song={song} />
+                          ))}
+                        </ScrollView>
+                      ) : (
+                        <Text style={styles.emptyGenreText}>Loading Marathi songs...</Text>
+                      )}
+                    </>
+                  )}
+                </View>
               </View>
             </FadeInView>
 
@@ -850,37 +861,10 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontSize: 14,
   },
-  headerGenreTabs: {
-    flexDirection: 'row',
-    gap: 6,
-    flexWrap: 'wrap',
-  },
-  headerGenreTab: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  headerGenreTabActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  headerGenreTabText: {
+  exploreGenreText: {
     color: colors.textSecondary,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-  },
-  headerGenreTabTextActive: {
-    color: '#fff',
-  },
-  emptyGenreText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.lg,
-    fontStyle: 'italic',
   },
   headerTitle: {
     ...typography.h1,
@@ -1180,5 +1164,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: spacing.xl * 3,
+  },
+  
+  // ===== Genre Tabs =====
+  tabsContainer: {
+    marginBottom: spacing.md,
+  },
+  tabsContent: {
+    paddingHorizontal: spacing.md,
+    gap: 10,
+  },
+  genreTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 24,
+    backgroundColor: colors.card,
+    gap: 6,
+  },
+  genreTabActive: {
+    backgroundColor: colors.primary,
+  },
+  genreTabEmoji: {
+    fontSize: 18,
+  },
+  genreTabText: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  genreTabTextActive: {
+    color: colors.text,
+  },
+  genreContent: {
+    minHeight: 180,
+  },
+  emptyGenreText: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.lg,
+    fontStyle: 'italic',
   },
 });
