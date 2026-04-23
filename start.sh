@@ -248,13 +248,31 @@ fi
 echo ""
 info "Running self-tests..."
 
-# Test Deezer API route
-API_RESP=$(curl -sf "http://localhost:$APP_PORT/api/chart/0/tracks?limit=1" 2>/dev/null || echo "")
+# Test Deezer API route (main chart)
+API_RESP=$(curl -sf "http://localhost:$APP_PORT/api/chart/0/tracks?limit=3" 2>/dev/null || echo "")
 if echo "$API_RESP" | grep -q '"preview"'; then
+  TRACK_COUNT=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(String(d.data?.length||0))}catch{process.stdout.write('0')}" 2>/dev/null || echo "0")
   TRACK_TITLE=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(d.data[0]?.title||'?')}catch{process.stdout.write('?')}" 2>/dev/null || echo "?")
-  ok "Songs API working  (sample: \"$TRACK_TITLE\")"
+  ARTIST_NAME=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(d.data[0]?.artist?.name||'?')}catch{process.stdout.write('?')}" 2>/dev/null || echo "?")
+  ok "Songs API working  ($TRACK_COUNT tracks - \"$TRACK_TITLE\" by $ARTIST_NAME)"
 else
   warn "Songs API did not return expected data — the app will use fallback songs."
+fi
+
+# Test genre APIs (Bollywood, Hollywood, South Indian)
+GENRE_STATUS=0
+for genre in "1" "116" "144"; do
+  GENRE_RESP=$(curl -sf "http://localhost:$APP_PORT/api/chart/$genre/tracks?limit=1" 2>/dev/null || echo "")
+  if echo "$GENRE_RESP" | grep -q '"preview"'; then
+    GENRE_STATUS=$((GENRE_STATUS + 1))
+  fi
+done
+if [[ $GENRE_STATUS -eq 3 ]]; then
+  ok "Genre APIs working  (Bollywood, Hollywood, South Indian)"
+elif [[ $GENRE_STATUS -gt 0 ]]; then
+  warn "Some genre APIs working ($GENRE_STATUS/3) — some songs may not load"
+else
+  warn "Genre APIs not responding — will use fallback songs"
 fi
 
 # Test audio proxy
