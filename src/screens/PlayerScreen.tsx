@@ -130,55 +130,68 @@ export const PlayerScreen: React.FC = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#1a1a2e', '#16213e', colors.background]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      {/* Animated Background Gradient */}
+      <LinearGradient
+        colors={['#0a0a0a', '#1a0a2e', '#16213e', '#0f3460']}
+        style={styles.backgroundGradient}
+      />
+      
+      {/* Floating Circular Artwork */}
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* Minimal Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-down" size={28} color={colors.text} />
+            <View style={styles.backButtonCircle}>
+              <Ionicons name="chevron-down" size={20} color={colors.text} />
+            </View>
           </TouchableOpacity>
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerSubtitle}>PLAYING FROM</Text>
-            <Text style={styles.headerTitle}>Your Library</Text>
+          <View style={styles.headerDots}>
+            <View style={styles.dot} />
+            <View style={[styles.dot, styles.dotActive]} />
+            <View style={styles.dot} />
           </View>
           <TouchableOpacity style={styles.moreButton}>
-            <Ionicons name="ellipsis-horizontal" size={24} color={colors.text} />
+            <View style={styles.moreButtonCircle}>
+              <Ionicons name="ellipsis-vertical" size={20} color={colors.text} />
+            </View>
           </TouchableOpacity>
         </View>
 
-        {/* Album Art with Glow Effect */}
-        <View style={styles.artworkContainer}>
+        {/* Floating Circular Album Art */}
+        <View style={styles.artworkSection}>
           <Animated.View style={{ transform: [{ scale: Animated.multiply(artScale, pulse) }], opacity: artOpacity }}>
-            <View style={styles.artworkWrapper}>
-              {/* Glow effect */}
-              <View style={[styles.artworkGlow, { backgroundColor: colors.primary + '40' }]} />
+            <View style={styles.artworkFloat}>
+              {/* Outer glow rings */}
+              <View style={[styles.glowRing, styles.glowRing1]} />
+              <View style={[styles.glowRing, styles.glowRing2]} />
+              <View style={[styles.glowRing, styles.glowRing3]} />
+              
+              {/* Album art */}
               <Image source={{ uri: currentSong.coverArt }} style={styles.artwork} />
-              {/* Vinyl record effect when playing */}
+              
+              {/* Central play indicator */}
               {isPlaying && (
-                <View style={styles.vinylOverlay}>
-                  <View style={styles.vinylCenter} />
+                <View style={styles.playingIndicator}>
+                  <View style={styles.waveContainer}>
+                    <View style={[styles.wave, styles.wave1]} />
+                    <View style={[styles.wave, styles.wave2]} />
+                    <View style={[styles.wave, styles.wave3]} />
+                  </View>
                 </View>
               )}
             </View>
           </Animated.View>
-          {isPlaying && (
-            <View style={styles.equalizerRow}>
-              <EqualizerBars isPlaying={isPlaying} barCount={5} color={colors.primary} size="small" />
-            </View>
-          )}
         </View>
 
-        {/* Song Info */}
-        <View style={styles.infoContainer}>
-          <View style={styles.infoHeader}>
-            <View style={styles.infoText}>
+        {/* Song Info with Artistic Layout */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
+            <View style={styles.infoTextArea}>
               <Text style={styles.title} numberOfLines={2}>
                 {currentSong.title}
               </Text>
@@ -186,482 +199,633 @@ export const PlayerScreen: React.FC = () => {
                 {currentSong.artist}
               </Text>
             </View>
+            
+            {/* Floating Like Button */}
             <Animated.View style={{ transform: [{ scale: likeScale }] }}>
-              <TouchableOpacity onPress={handleLike} style={styles.likeBubble}>
-                <Ionicons
-                  name={currentSong && isLiked(currentSong.id) ? 'heart' : 'heart-outline'}
-                  size={26}
-                  color={currentSong && isLiked(currentSong.id) ? '#ff0066' : colors.text}
-                />
+              <TouchableOpacity 
+                onPress={handleLike} 
+                style={[
+                  styles.floatingLike,
+                  currentSong && isLiked(currentSong.id) && styles.floatingLikeActive
+                ]}
+              >
+                <LinearGradient
+                  colors={currentSong && isLiked(currentSong.id) 
+                    ? ['#ff0066', '#ff6b9d'] 
+                    : ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']}
+                  style={styles.floatingLikeGradient}
+                >
+                  <Ionicons
+                    name={currentSong && isLiked(currentSong.id) ? 'heart' : 'heart-outline'}
+                    size={24}
+                    color={currentSong && isLiked(currentSong.id) ? '#fff' : colors.text}
+                  />
+                </LinearGradient>
               </TouchableOpacity>
             </Animated.View>
           </View>
         </View>
 
-        {/* Progress Bar */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBarWrapper}>
-            <View style={styles.progressTrack}>
-              <LinearGradient
-                colors={[colors.primary, '#ff0066']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={[styles.progressFill, { width: `${(position / duration) * 100}%` }]}
-              />
-              <View style={[styles.progressThumb, { left: `${(position / duration) * 100}%` }]} />
-            </View>
-          </View>
-          <View style={styles.timeContainer}>
+        {/* Unique Radial Progress */}
+        <View style={styles.progressSection}>
+          <View style={styles.timeRow}>
             <Text style={styles.timeText}>{formatTime(position)}</Text>
+            <View style={styles.progressBarContainer}>
+              <View style={styles.progressBackground}>
+                <LinearGradient
+                  colors={['#d500f9', '#ff0066', '#ff6b35']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={[styles.progressActive, { width: `${(position / duration) * 100}%` }]}
+                />
+                <View style={[styles.progressDot, { left: `${(position / duration) * 100}%` }]} />
+              </View>
+            </View>
             <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
         </View>
 
-        {/* Main Controls */}
-        <View style={styles.controlsContainer}>
-          <TouchableOpacity onPress={previous} style={styles.controlButton}>
-            <View style={styles.controlButtonInner}>
-              <Ionicons name="play-skip-back" size={28} color={colors.text} />
+        {/* Unique Control Layout - Horizontal Cards */}
+        <View style={styles.controlsSection}>
+          {/* Previous Button */}
+          <TouchableOpacity onPress={previous} style={styles.sideControl}>
+            <View style={styles.sideControlInner}>
+              <Ionicons name="play-back" size={24} color={colors.text} />
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handlePlayPause} style={styles.playButtonWrapper}>
+          {/* Center Play Button - Large Gradient Orb */}
+          <TouchableOpacity onPress={handlePlayPause} style={styles.centerControlWrapper}>
             <LinearGradient
-              colors={[colors.primary, '#ff0066']}
+              colors={['#d500f9', '#ff0066', '#ff6b35']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={styles.playButton}
+              style={styles.centerControl}
             >
-              <Ionicons
-                name={isPlaying ? 'pause' : 'play'}
-                size={34}
-                color="#fff"
+              <View style={styles.centerControlInner}>
+                <Ionicons
+                  name={isPlaying ? 'pause' : 'play'}
+                  size={36}
+                  color="#fff"
+                  style={!isPlaying && { marginLeft: 4 }}
+                />
+              </View>
+            </LinearGradient>
+            {/* Outer ring animation */}
+            {isPlaying && (
+              <View style={styles.centerControlRing} />
+            )}
+          </TouchableOpacity>
+
+          {/* Next Button */}
+          <TouchableOpacity onPress={next} style={styles.sideControl}>
+            <View style={styles.sideControlInner}>
+              <Ionicons name="play-forward" size={24} color={colors.text} />
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Feature Cards Grid */}
+        <View style={styles.featuresGrid}>
+          <TouchableOpacity onPress={toggleShuffle} style={styles.featureCard}>
+            <LinearGradient
+              colors={shuffle 
+                ? ['rgba(213,0,249,0.2)', 'rgba(213,0,249,0.1)']
+                : ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+              style={styles.featureCardGradient}
+            >
+              <Ionicons 
+                name="shuffle" 
+                size={20} 
+                color={shuffle ? '#d500f9' : colors.textSecondary} 
               />
+              <Text style={[styles.featureText, shuffle && styles.featureTextActive]}>
+                Shuffle
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={next} style={styles.controlButton}>
-            <View style={styles.controlButtonInner}>
-              <Ionicons name="play-skip-forward" size={28} color={colors.text} />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Secondary Controls */}
-        <View style={styles.secondaryControls}>
-          <TouchableOpacity onPress={toggleShuffle} style={styles.secondaryButton}>
-            <Ionicons
-              name="shuffle"
-              size={24}
-              color={shuffle ? colors.primary : colors.textSecondary}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.aiRadioButton, radioLoading && styles.aiRadioButtonLoading]}
+          <TouchableOpacity 
+            style={styles.featureCard}
             onPress={handleAIRadio}
             disabled={radioLoading}
           >
-            {radioLoading ? (
-              <ActivityIndicator size="small" color="#FFD700" />
-            ) : (
-              <Ionicons name="sparkles" size={20} color="#FFD700" />
-            )}
-            <Text style={styles.aiRadioText}>AI Radio</Text>
+            <LinearGradient
+              colors={['rgba(255,215,0,0.2)', 'rgba(255,215,0,0.1)']}
+              style={styles.featureCardGradient}
+            >
+              {radioLoading ? (
+                <ActivityIndicator size="small" color="#FFD700" />
+              ) : (
+                <Ionicons name="sparkles" size={20} color="#FFD700" />
+              )}
+              <Text style={[styles.featureText, { color: '#FFD700' }]}>
+                AI Radio
+              </Text>
+            </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={toggleRepeat} style={styles.secondaryButton}>
-            <Ionicons
-              name={repeat === 'one' ? 'repeat-outline' : 'repeat'}
-              size={24}
-              color={repeat !== 'off' ? colors.primary : colors.textSecondary}
-            />
-            {repeat === 'one' && (
-              <View style={styles.repeatBadge}>
-                <Text style={styles.repeatBadgeText}>1</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Bottom Actions */}
-        <View style={styles.bottomActions}>
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="list-outline" size={22} color={colors.text} />
-            <Text style={styles.actionButtonText}>Queue</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="add-circle-outline" size={22} color={colors.text} />
-            <Text style={styles.actionButtonText}>Add to Playlist</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="share-outline" size={22} color={colors.text} />
-            <Text style={styles.actionButtonText}>Share</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Queue Preview */}
-        {playerState.queue && playerState.queue.length > 1 && (
-          <View style={styles.queuePreview}>
-            <Text style={styles.queueTitle}>Up Next</Text>
-            <View style={styles.queueItem}>
-              <Image 
-                source={{ uri: playerState.queue[1]?.coverArt }} 
-                style={styles.queueItemImage} 
+          <TouchableOpacity onPress={toggleRepeat} style={styles.featureCard}>
+            <LinearGradient
+              colors={repeat !== 'off'
+                ? ['rgba(255,0,102,0.2)', 'rgba(255,0,102,0.1)']
+                : ['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+              style={styles.featureCardGradient}
+            >
+              <Ionicons 
+                name={repeat === 'one' ? 'repeat-outline' : 'repeat'} 
+                size={20} 
+                color={repeat !== 'off' ? '#ff0066' : colors.textSecondary} 
               />
-              <View style={styles.queueItemInfo}>
-                <Text style={styles.queueItemTitle} numberOfLines={1}>
-                  {playerState.queue[1]?.title}
-                </Text>
-                <Text style={styles.queueItemArtist} numberOfLines={1}>
-                  {playerState.queue[1]?.artist}
-                </Text>
-              </View>
+              {repeat === 'one' && (
+                <View style={styles.repeatOneBadge}>
+                  <Text style={styles.repeatOneText}>1</Text>
+                </View>
+              )}
+              <Text style={[styles.featureText, repeat !== 'off' && { color: '#ff0066' }]}>
+                Repeat
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+
+        {/* Action Buttons - Artistic Layout */}
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.actionItem}>
+            <View style={styles.actionIcon}>
+              <Ionicons name="list" size={18} color={colors.text} />
             </View>
+            <Text style={styles.actionLabel}>Queue</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionItem}>
+            <View style={styles.actionIcon}>
+              <Ionicons name="add" size={18} color={colors.text} />
+            </View>
+            <Text style={styles.actionLabel}>Playlist</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionItem}>
+            <View style={styles.actionIcon}>
+              <Ionicons name="share-social" size={18} color={colors.text} />
+            </View>
+            <Text style={styles.actionLabel}>Share</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionItem}>
+            <View style={styles.actionIcon}>
+              <Ionicons name="download-outline" size={18} color={colors.text} />
+            </View>
+            <Text style={styles.actionLabel}>Save</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Up Next Card */}
+        {playerState.queue && playerState.queue.length > 1 && (
+          <View style={styles.upNextCard}>
+            <LinearGradient
+              colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.04)']}
+              style={styles.upNextGradient}
+            >
+              <View style={styles.upNextHeader}>
+                <Ionicons name="musical-notes" size={16} color={colors.primary} />
+                <Text style={styles.upNextTitle}>Up Next</Text>
+              </View>
+              <View style={styles.upNextItem}>
+                <Image 
+                  source={{ uri: playerState.queue[1]?.coverArt }} 
+                  style={styles.upNextImage} 
+                />
+                <View style={styles.upNextInfo}>
+                  <Text style={styles.upNextSongTitle} numberOfLines={1}>
+                    {playerState.queue[1]?.title}
+                  </Text>
+                  <Text style={styles.upNextArtist} numberOfLines={1}>
+                    {playerState.queue[1]?.artist}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+              </View>
+            </LinearGradient>
           </View>
         )}
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0a0a0a',
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: spacing.md,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 40,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  headerSubtitle: {
-    color: colors.textSecondary,
-    fontSize: 10,
-    fontWeight: '600',
-    letterSpacing: 1,
-    marginBottom: 2,
-  },
-  headerTitle: {
-    color: colors.text,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  moreButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  
-  // Artwork Section
-  artworkContainer: {
-    alignItems: 'center',
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  artworkWrapper: {
-    position: 'relative',
-  },
-  artwork: {
-    width: width * 0.68,
-    height: width * 0.68,
-    borderRadius: 16,
-  },
-  artworkGlow: {
-    position: 'absolute',
-    width: width * 0.68,
-    height: width * 0.68,
-    borderRadius: 16,
-    opacity: 0.3,
-    ...Platform.select({
-      ios: {
-        shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 20,
-      },
-      android: {
-        elevation: 12,
-      },
-    }),
-  },
-  vinylOverlay: {
+  backgroundGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  vinylCenter: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  equalizerRow: {
-    alignItems: 'center',
-    marginTop: spacing.sm,
-  },
-  
-  // Song Info
-  infoContainer: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-  },
-  infoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  infoText: {
+  scrollView: {
     flex: 1,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: spacing.xs,
-    lineHeight: 26,
+  scrollContent: {
+    paddingBottom: spacing.xl,
   },
-  artist: {
-    color: colors.textSecondary,
-    fontSize: 15,
-    fontWeight: '500',
+  
+  // Minimal Header with Dots
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 50,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
   },
-  likeBubble: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+  backButton: {
+    width: 44,
+  },
+  backButtonCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  headerDots: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  dotActive: {
+    width: 20,
+    backgroundColor: colors.primary,
+  },
+  moreButton: {
+    width: 44,
+    alignItems: 'flex-end',
+  },
+  moreButtonCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
   
-  // Progress Bar
-  progressContainer: {
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
+  // Floating Circular Artwork
+  artworkSection: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
+    marginBottom: spacing.xl,
   },
-  progressBarWrapper: {
-    marginBottom: spacing.sm,
-  },
-  progressTrack: {
-    height: 4,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 2,
-    overflow: 'visible',
+  artworkFloat: {
     position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  progressThumb: {
+  glowRing: {
     position: 'absolute',
-    top: -3,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#fff',
-    marginLeft: -7,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 4,
+    borderRadius: 1000,
+    borderWidth: 2,
   },
-  timeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  glowRing1: {
+    width: width * 0.72,
+    height: width * 0.72,
+    borderColor: 'rgba(213,0,249,0.3)',
   },
-  timeText: {
-    color: colors.textSecondary,
-    fontSize: 13,
-    fontWeight: '500',
+  glowRing2: {
+    width: width * 0.76,
+    height: width * 0.76,
+    borderColor: 'rgba(255,0,102,0.2)',
   },
-  
-  // Controls
-  controlsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-    gap: spacing.md,
+  glowRing3: {
+    width: width * 0.80,
+    height: width * 0.80,
+    borderColor: 'rgba(255,107,53,0.1)',
   },
-  controlButton: {
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+  artwork: {
+    width: width * 0.65,
+    height: width * 0.65,
+    borderRadius: 1000,
+    borderWidth: 4,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  controlButtonInner: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playButtonWrapper: {
-    width: 68,
-    height: 68,
-  },
-  playButton: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  
-  // Secondary Controls
-  secondaryControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-    gap: spacing.md,
-  },
-  secondaryButton: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  aiRadioButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+  playingIndicator: {
+    position: 'absolute',
+    bottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.7)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
-    gap: 6,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  aiRadioButtonLoading: {
-    opacity: 0.7,
+  waveContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
-  aiRadioText: {
-    color: '#FFD700',
-    fontSize: 12,
+  wave: {
+    width: 3,
+    backgroundColor: colors.primary,
+    borderRadius: 2,
+  },
+  wave1: {
+    height: 12,
+  },
+  wave2: {
+    height: 18,
+  },
+  wave3: {
+    height: 14,
+  },
+  
+  // Info Card
+  infoSection: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  infoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 20,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
+  },
+  infoTextArea: {
+    flex: 1,
+    marginRight: spacing.sm,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 4,
+    lineHeight: 28,
+  },
+  artist: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    fontWeight: '500',
+  },
+  floatingLike: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+  },
+  floatingLikeActive: {
+    shadowColor: '#ff0066',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  floatingLikeGradient: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  
+  // Radial Progress
+  progressSection: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  timeText: {
+    color: colors.textSecondary,
+    fontSize: 11,
     fontWeight: '700',
+    width: 40,
   },
-  repeatBadge: {
+  progressBarContainer: {
+    flex: 1,
+  },
+  progressBackground: {
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 3,
+    overflow: 'visible',
+    position: 'relative',
+  },
+  progressActive: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  progressDot: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: -4,
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: colors.primary,
+    backgroundColor: '#fff',
+    marginLeft: -7,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  
+  // Unique Horizontal Controls
+  controlsSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+    gap: spacing.lg,
+  },
+  sideControl: {
+    width: 60,
+    height: 60,
+  },
+  sideControlInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  centerControlWrapper: {
+    position: 'relative',
+    width: 90,
+    height: 90,
+  },
+  centerControl: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#d500f9',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  centerControlInner: {
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  centerControlRing: {
+    position: 'absolute',
+    top: -6,
+    left: -6,
+    width: 102,
+    height: 102,
+    borderRadius: 51,
+    borderWidth: 2,
+    borderColor: 'rgba(213,0,249,0.4)',
+  },
+  
+  // Feature Cards Grid
+  featuresGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  featureCard: {
+    flex: 1,
+    height: 80,
+  },
+  featureCardGradient: {
+    flex: 1,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  featureText: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  featureTextActive: {
+    color: '#d500f9',
+  },
+  repeatOneBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#ff0066',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  repeatBadgeText: {
+  repeatOneText: {
     color: '#fff',
     fontSize: 9,
     fontWeight: 'bold',
   },
   
-  // Bottom Actions
-  bottomActions: {
+  // Actions Row
+  actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  actionItem: {
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 16,
+    gap: 8,
+  },
+  actionIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  actionButton: {
-    alignItems: 'center',
-    gap: 6,
-  },
-  actionButtonText: {
+  actionLabel: {
     color: colors.textSecondary,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
   },
   
-  // Queue Preview
-  queuePreview: {
+  // Up Next Card
+  upNextCard: {
     marginHorizontal: spacing.lg,
-    padding: spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    marginBottom: spacing.lg,
   },
-  queueTitle: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    fontWeight: '600',
+  upNextGradient: {
+    borderRadius: 16,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  upNextHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: spacing.sm,
+  },
+  upNextTitle: {
+    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  queueItem: {
+  upNextItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
   },
-  queueItemImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
+  upNextImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
   },
-  queueItemInfo: {
+  upNextInfo: {
     flex: 1,
   },
-  queueItemTitle: {
+  upNextSongTitle: {
     color: colors.text,
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 2,
   },
-  queueItemArtist: {
+  upNextArtist: {
     color: colors.textSecondary,
     fontSize: 12,
   },
@@ -669,7 +833,7 @@ const styles = StyleSheet.create({
   // Empty State
   emptyContainer: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#0a0a0a',
     justifyContent: 'center',
     alignItems: 'center',
   },
