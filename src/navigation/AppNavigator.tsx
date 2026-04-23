@@ -3,10 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from '../screens/HomeScreen';
-import { BollywoodScreen } from '../screens/BollywoodScreen';
-import { HollywoodScreen } from '../screens/HollywoodScreen';
-import { SouthIndianScreen } from '../screens/SouthIndianScreen';
-import { MarathiScreen } from '../screens/MarathiScreen';
 import { DJMixScreen } from '../screens/DJMixScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { PlayerScreen } from '../screens/PlayerScreen';
@@ -44,43 +40,6 @@ const TabNavigator = () => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Bollywood"
-        component={BollywoodScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="musical-notes" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Hollywood"
-        component={HollywoodScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="globe" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="South"
-        component={SouthIndianScreen}
-        options={{
-          tabBarLabel: 'South',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="disc" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Marathi"
-        component={MarathiScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="flower" size={size} color={color} />
           ),
         }}
       />
