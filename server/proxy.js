@@ -10,8 +10,8 @@ const app = express();
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 // Dev: 8081 is the single public port. Expo runs internally on 8082.
 // Prod: use PORT env var (Render sets this) or fallback to 3001.
-const PORT = IS_PRODUCTION ? (process.env.PORT || 3001) : 8081;
-const EXPO_PORT = process.env.EXPO_PORT || 8082;
+const PORT = IS_PRODUCTION ? (process.env.PORT || 3001) : 8082;
+const EXPO_PORT = process.env.EXPO_PORT || 8083;
 
 // ── Middleware ───────────────────────────────────────────────
 app.use(cors());

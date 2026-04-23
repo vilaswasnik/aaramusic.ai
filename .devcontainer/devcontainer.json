@@ -1,0 +1,26 @@
+{
+  "name": "Aara Music",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "forwardPorts": [8082, 8083],
+  "portsAttributes": {
+    "8082": {
+      "label": "Aara Music App",
+      "visibility": "public",
+      "onAutoForward": "openBrowserOnce"
+    },
+    "8083": {
+      "label": "Expo Dev Server",
+      "visibility": "private",
+      "onAutoForward": "silent"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

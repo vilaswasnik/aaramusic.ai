@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +10,10 @@ import { PlayerScreen } from '../screens/PlayerScreen';
 import { DJMixerScreen } from '../screens/DJMixerScreen';
 import { KaraokeScreen } from '../screens/KaraokeScreen';
 import { KaraokePlayerScreen } from '../screens/KaraokePlayerScreen';
+import { LoginScreen } from '../screens/LoginScreen';
+import { SignupScreen } from '../screens/SignupScreen';
 import { colors } from '../constants/theme';
+import { useAuth } from '../context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -76,6 +80,27 @@ const TabNavigator = () => {
 };
 
 export const AppNavigator = () => {
+  const { user, loading } = useAuth();
+  const [showSignup, setShowSignup] = useState(false);
+
+  // Show spinner while restoring session
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  // Not logged in — show auth screens
+  if (!user) {
+    if (showSignup) {
+      return <SignupScreen onGoToLogin={() => setShowSignup(false)} />;
+    }
+    return <LoginScreen onGoToSignup={() => setShowSignup(true)} />;
+  }
+
+  // Logged in — show main app
   return (
     <Stack.Navigator
       screenOptions={{

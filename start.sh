@@ -20,8 +20,8 @@ set -euo pipefail
 # Change to script directory to ensure relative paths work
 cd "$(dirname "$0")"
 
-APP_PORT=8081
-EXPO_PORT=8082
+APP_PORT=8082
+EXPO_PORT=8083
 LOG_DIR=".logs"
 PROXY_LOG="$LOG_DIR/proxy.log"
 EXPO_LOG="$LOG_DIR/expo.log"
@@ -200,12 +200,43 @@ if [[ $READY -eq 0 ]]; then
 fi
 ok "Proxy server ready on port $APP_PORT"
 
+
+
 # ════════════════════════════════════════════════════════════════
 #  4. MAKE PORT PUBLIC (Codespaces only)
 # ════════════════════════════════════════════════════════════════
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
   info "Making port $APP_PORT public in Codespaces..."
-  gh codespace ports visibility "$APP_PORT:public" -c "$CODESPACE_NAME" 2>/dev/null && ok "Port $APP_PORT is public" || warn "Could not set port visibility (non-fatal)"
+
+  PORT_PUBLIC=0
+  FORWARDING_DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
+  PUBLIC_URL="https://${CODESPACE_NAME}-${APP_PORT}.${FORWARDING_DOMAIN}"
+
+  # Wait up to 20s for Codespaces to register the port (VS Code scans terminal output for port patterns)
+  for i in $(seq 1 20); do
+    PORT_LIST=$(gh codespace ports -c "$CODESPACE_NAME" 2>/dev/null < /dev/null || echo "")
+    if echo "$PORT_LIST" | grep -q "$APP_PORT"; then
+      PORT_PUBLIC=1
+      break
+    fi
+    sleep 1
+  done
+
+  if [[ $PORT_PUBLIC -eq 1 ]]; then
+    # Port is registered — set it public
+    GH_PROMPT_DISABLED=1 gh codespace ports visibility "$APP_PORT:public" -c "$CODESPACE_NAME" < /dev/null 2>/dev/null && PORT_PUBLIC=1 || PORT_PUBLIC=0
+  fi
+
+  # Final verify: check it doesn't redirect
+  sleep 1
+  HTTP_CHECK=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "$PUBLIC_URL/health" 2>/dev/null || echo "000")
+  if [[ "$HTTP_CHECK" == "200" ]]; then
+    ok "Port $APP_PORT is public and verified ✓"
+  else
+    warn "Port $APP_PORT could not be made public automatically."
+    warn "Open the VS Code Ports tab → right-click port $APP_PORT → Port Visibility → Public"
+    warn "Without this, songs will not load (API calls will be blocked)."
+  fi
 fi
 
 # ════════════════════════════════════════════════════════════════
@@ -248,48 +279,55 @@ fi
 echo ""
 info "Running self-tests..."
 
-# Test Deezer API route (main chart)
+# Test health endpoint
+HEALTH=$(curl -sf "http://localhost:$APP_PORT/health" 2>/dev/null || echo "")
+if echo "$HEALTH" | grep -q '"ok"'; then
+  ok "Health endpoint OK"
+else
+  warn "Health endpoint not responding"
+fi
+
+# Test top songs (main chart — same endpoint the app uses)
 API_RESP=$(curl -sf "http://localhost:$APP_PORT/api/chart/0/tracks?limit=3" 2>/dev/null || echo "")
 if echo "$API_RESP" | grep -q '"preview"'; then
   TRACK_COUNT=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(String(d.data?.length||0))}catch{process.stdout.write('0')}" 2>/dev/null || echo "0")
   TRACK_TITLE=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(d.data[0]?.title||'?')}catch{process.stdout.write('?')}" 2>/dev/null || echo "?")
   ARTIST_NAME=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(d.data[0]?.artist?.name||'?')}catch{process.stdout.write('?')}" 2>/dev/null || echo "?")
-  ok "Songs API working  ($TRACK_COUNT tracks - \"$TRACK_TITLE\" by $ARTIST_NAME)"
+  ok "Top songs API working  ($TRACK_COUNT tracks - \"$TRACK_TITLE\" by $ARTIST_NAME)"
 else
-  warn "Songs API did not return expected data — the app will use fallback songs."
+  warn "Top songs API did not return data — app will show fallback songs."
 fi
 
-# Test genre APIs (Bollywood, Hollywood, South Indian)
-GENRE_STATUS=0
-for genre in "1" "116" "144"; do
-  GENRE_RESP=$(curl -sf "http://localhost:$APP_PORT/api/chart/$genre/tracks?limit=1" 2>/dev/null || echo "")
-  if echo "$GENRE_RESP" | grep -q '"preview"'; then
-    GENRE_STATUS=$((GENRE_STATUS + 1))
-  fi
-done
-if [[ $GENRE_STATUS -eq 3 ]]; then
-  ok "Genre APIs working  (Bollywood, Hollywood, South Indian)"
-elif [[ $GENRE_STATUS -gt 0 ]]; then
-  warn "Some genre APIs working ($GENRE_STATUS/3) — some songs may not load"
+# Test the actual playlist IDs used by the app for each genre
+BOLLYWOOD_RESP=$(curl -sf "http://localhost:$APP_PORT/api/playlist/5714603022/tracks?limit=1" 2>/dev/null || echo "")
+HOLLYWOOD_RESP=$(curl -sf "http://localhost:$APP_PORT/api/playlist/6707920184/tracks?limit=1" 2>/dev/null || echo "")
+SOUTHINDIAN_RESP=$(curl -sf "http://localhost:$APP_PORT/api/playlist/13523718423/tracks?limit=1" 2>/dev/null || echo "")
+
+GENRE_OK=0
+echo "$BOLLYWOOD_RESP" | grep -q '"preview"' && GENRE_OK=$((GENRE_OK+1)) || true
+echo "$HOLLYWOOD_RESP" | grep -q '"preview"' && GENRE_OK=$((GENRE_OK+1)) || true
+echo "$SOUTHINDIAN_RESP" | grep -q '"preview"' && GENRE_OK=$((GENRE_OK+1)) || true
+
+if [[ $GENRE_OK -eq 3 ]]; then
+  ok "Genre playlists working  (Bollywood, Hollywood, South Indian)"
+elif [[ $GENRE_OK -gt 0 ]]; then
+  warn "Genre playlists partial ($GENRE_OK/3 responding) — some genre songs may not load"
 else
-  warn "Genre APIs not responding — will use fallback songs"
+  warn "Genre playlists not responding — genre screens will use fallback songs"
 fi
 
-# Test audio proxy
+# Test audio proxy using a real preview URL from the top songs response
 PREVIEW_URL=$(echo "$API_RESP" | node -e "try{const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));process.stdout.write(d.data[0]?.preview||'')}catch{process.stdout.write('')}" 2>/dev/null || echo "")
 if [[ -n "$PREVIEW_URL" ]]; then
-  AUDIO_STATUS=$(curl -so /dev/null -w "%{http_code}" "http://localhost:$APP_PORT/audio?url=$(node -e "process.stdout.write(encodeURIComponent('$PREVIEW_URL'))" 2>/dev/null)" 2>/dev/null || echo "000")
-  if [[ "$AUDIO_STATUS" == "200" || "$AUDIO_STATUS" == "206" ]]; then
-    ok "Audio proxy working  (HTTP $AUDIO_STATUS)"
-  else
-    warn "Audio proxy returned HTTP $AUDIO_STATUS — audio may not play correctly."
+  ENCODED_URL=$(node -e "process.stdout.write(encodeURIComponent('$PREVIEW_URL'))" 2>/dev/null || echo "")
+  if [[ -n "$ENCODED_URL" ]]; then
+    AUDIO_STATUS=$(curl -so /dev/null -w "%{http_code}" --max-time 8 "http://localhost:$APP_PORT/audio?url=$ENCODED_URL" 2>/dev/null || echo "000")
+    if [[ "$AUDIO_STATUS" == "200" || "$AUDIO_STATUS" == "206" ]]; then
+      ok "Audio proxy working  (HTTP $AUDIO_STATUS)"
+    else
+      warn "Audio proxy returned HTTP $AUDIO_STATUS — songs may not play."
+    fi
   fi
-fi
-
-# Test health endpoint
-HEALTH=$(curl -sf "http://localhost:$APP_PORT/health" 2>/dev/null || echo "")
-if echo "$HEALTH" | grep -q '"ok"'; then
-  ok "Health endpoint OK"
 fi
 
 # ════════════════════════════════════════════════════════════════
@@ -301,7 +339,21 @@ echo -e "${BOLD}${GREEN}  Aara Music is running!${RESET}"
 echo -e "${GREEN}════════════════════════════════════════════${RESET}"
 echo -e "  ${BOLD}Local:${RESET}  http://localhost:$APP_PORT"
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
-  echo -e "  ${BOLD}Public:${RESET} https://${CODESPACE_NAME}-${APP_PORT}.app.github.dev"
+  PUBLIC_URL="https://${CODESPACE_NAME}-${APP_PORT}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
+  # Final port visibility check — re-run if somehow it became private again
+  FINAL_CHECK=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "$PUBLIC_URL/health" 2>/dev/null || echo "000")
+  if [[ "$FINAL_CHECK" != "200" ]]; then
+    warn "Port $APP_PORT is not public — retrying..."
+    GH_PROMPT_DISABLED=1 gh codespace ports visibility "$APP_PORT:public" -c "$CODESPACE_NAME" < /dev/null 2>/dev/null || true
+    sleep 2
+    FINAL_CHECK=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "$PUBLIC_URL/health" 2>/dev/null || echo "000")
+  fi
+  if [[ "$FINAL_CHECK" == "200" ]]; then
+    echo -e "  ${BOLD}Public:${RESET} $PUBLIC_URL"
+  else
+    echo -e "  ${BOLD}Public:${RESET} $PUBLIC_URL"
+    warn "Port may not be public — songs may not load. Set port $APP_PORT to Public in the VS Code Ports tab."
+  fi
 fi
 echo ""
 echo -e "  Logs:   .logs/proxy.log  |  .logs/expo.log"

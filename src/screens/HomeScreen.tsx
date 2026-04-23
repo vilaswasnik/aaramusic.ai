@@ -88,6 +88,7 @@ export const HomeScreen: React.FC = () => {
   const moods = getMoods();
 
   const loadData = async () => {
+    resetFallbackDataFlag();
     try {
       const [songs, curatedPlaylists, bollywood, hollywood, southIndian, marathi] = await Promise.all([
         fetchTopSongs(50),
@@ -109,7 +110,10 @@ export const HomeScreen: React.FC = () => {
       setHollywoodSongs(hollywood);
       setSouthIndianSongs(southIndian);
       setMarathiSongs(marathi);
-      setShowFallbackBanner(isUsingFallbackData());
+      // Only show banner when primary top-songs are mock/fallback data
+      // (mock songs use soundhelix URLs; real Deezer songs use CDN URLs)
+      const primaryFailed = songs.length === 0 || songs.some(s => s.audioUrl.includes('soundhelix'));
+      setShowFallbackBanner(primaryFailed);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {

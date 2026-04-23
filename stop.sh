@@ -1,7 +1,7 @@
 #!/bin/bash
 # ════════════════════════════════════════════════════════════
 #  Aara Music — stop all services
-#  Kills whatever is on port 8081 (proxy) and 8082 (Expo).
+#  Kills whatever is on port 8082 (proxy) and 8083 (Expo).
 #  Now with PID file support and better cleanup.
 # ════════════════════════════════════════════════════════════
 
@@ -54,8 +54,8 @@ else
 fi
 
 # Stop by port (backup method)
-stop_port 8081 "Proxy / app server"
-stop_port 8082 "Expo dev server"
+stop_port 8082 "Proxy / app server"
+stop_port 8083 "Expo dev server"
 
 # Also kill by process name in case ports have changed or PID file is stale
 KILLED_PROXY=0
@@ -78,15 +78,15 @@ fi
 
 # Final verification
 sleep 0.5
-REMAINING_8081=$(lsof -ti :8081 2>/dev/null | wc -l | xargs)
 REMAINING_8082=$(lsof -ti :8082 2>/dev/null | wc -l | xargs)
-REMAINING_8081=${REMAINING_8081:-0}
+REMAINING_8083=$(lsof -ti :8083 2>/dev/null | wc -l | xargs)
 REMAINING_8082=${REMAINING_8082:-0}
+REMAINING_8083=${REMAINING_8083:-0}
 
-if [[ $REMAINING_8081 -gt 0 || $REMAINING_8082 -gt 0 ]]; then
+if [[ $REMAINING_8082 -gt 0 || $REMAINING_8083 -gt 0 ]]; then
   echo -e "${RED}  ✗${RESET} Warning: Some processes may still be running"
-  [[ $REMAINING_8081 -gt 0 ]] && echo -e "  Port 8081: $REMAINING_8081 process(es)"
   [[ $REMAINING_8082 -gt 0 ]] && echo -e "  Port 8082: $REMAINING_8082 process(es)"
+  [[ $REMAINING_8083 -gt 0 ]] && echo -e "  Port 8083: $REMAINING_8083 process(es)"
   exit 1
 fi
 
