@@ -155,10 +155,8 @@ export const PlayerScreen: React.FC = () => {
             <View style={[styles.dot, styles.dotActive]} />
             <View style={styles.dot} />
           </View>
-          <TouchableOpacity style={styles.moreButton}>
-            <View style={styles.moreButtonCircle}>
-              <Ionicons name="ellipsis-vertical" size={20} color={colors.text} />
-            </View>
+          <TouchableOpacity style={styles.exploreButton}>
+            <Text style={styles.exploreText}>Explore by Genre</Text>
           </TouchableOpacity>
         </View>
 
@@ -482,6 +480,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+  },
+  exploreButton: {
+    alignItems: 'flex-end',
+  },
+  exploreText: {
+    color: colors.text,
+    fontSize: 11,
+    fontWeight: '600',
+    opacity: 0.8,
   },
   
   // Floating Circular Artwork
