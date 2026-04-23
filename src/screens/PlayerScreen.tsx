@@ -217,7 +217,7 @@ export const PlayerScreen: React.FC = () => {
                 >
                   <Ionicons
                     name={currentSong && isLiked(currentSong.id) ? 'heart' : 'heart-outline'}
-                    size={22}
+                    size={20}
                     color={currentSong && isLiked(currentSong.id) ? '#fff' : colors.text}
                   />
                 </LinearGradient>
@@ -250,7 +250,7 @@ export const PlayerScreen: React.FC = () => {
           {/* Previous Button */}
           <TouchableOpacity onPress={previous} style={styles.sideControl}>
             <View style={styles.sideControlInner}>
-              <Ionicons name="play-back" size={22} color={colors.text} />
+              <Ionicons name="play-back" size={20} color={colors.text} />
             </View>
           </TouchableOpacity>
 
@@ -280,7 +280,7 @@ export const PlayerScreen: React.FC = () => {
           {/* Next Button */}
           <TouchableOpacity onPress={next} style={styles.sideControl}>
             <View style={styles.sideControlInner}>
-              <Ionicons name="play-forward" size={22} color={colors.text} />
+              <Ionicons name="play-forward" size={20} color={colors.text} />
             </View>
           </TouchableOpacity>
         </View>
@@ -296,7 +296,7 @@ export const PlayerScreen: React.FC = () => {
             >
               <Ionicons 
                 name="shuffle" 
-                size={20} 
+                size={18} 
                 color={shuffle ? '#d500f9' : colors.textSecondary} 
               />
               <Text style={[styles.featureText, shuffle && styles.featureTextActive]}>
@@ -317,7 +317,7 @@ export const PlayerScreen: React.FC = () => {
               {radioLoading ? (
                 <ActivityIndicator size="small" color="#FFD700" />
               ) : (
-                <Ionicons name="sparkles" size={20} color="#FFD700" />
+                <Ionicons name="sparkles" size={18} color="#FFD700" />
               )}
               <Text style={[styles.featureText, { color: '#FFD700' }]}>
                 AI Radio
@@ -334,7 +334,7 @@ export const PlayerScreen: React.FC = () => {
             >
               <Ionicons 
                 name={repeat === 'one' ? 'repeat-outline' : 'repeat'} 
-                size={20} 
+                size={18} 
                 color={repeat !== 'off' ? '#ff0066' : colors.textSecondary} 
               />
               {repeat === 'one' && (
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.xs,
   },
   
   // Minimal Header with Dots
@@ -438,9 +438,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 44,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
+    paddingTop: 24,
+    paddingHorizontal: spacing.sm,
+    paddingBottom: spacing.xs,
   },
   backButton: {
     width: 44,
@@ -487,8 +487,8 @@ const styles = StyleSheet.create({
   // Floating Circular Artwork
   artworkSection: {
     alignItems: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
   },
   artworkFloat: {
     position: 'relative',
@@ -501,25 +501,25 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   glowRing1: {
-    width: width * 0.60,
-    height: width * 0.60,
+    width: width * 0.45,
+    height: width * 0.45,
     borderColor: 'rgba(213,0,249,0.3)',
   },
   glowRing2: {
-    width: width * 0.64,
-    height: width * 0.64,
+    width: width * 0.48,
+    height: width * 0.48,
     borderColor: 'rgba(255,0,102,0.2)',
   },
   glowRing3: {
-    width: width * 0.68,
-    height: width * 0.68,
+    width: width * 0.50,
+    height: width * 0.50,
     borderColor: 'rgba(255,107,53,0.1)',
   },
   artwork: {
-    width: width * 0.55,
-    height: width * 0.55,
+    width: width * 0.40,
+    height: width * 0.40,
     borderRadius: 1000,
-    borderWidth: 4,
+    borderWidth: 3,
     borderColor: 'rgba(255,255,255,0.1)',
   },
   playingIndicator: {
@@ -554,15 +554,15 @@ const styles = StyleSheet.create({
   
   // Info Card
   infoSection: {
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 16,
-    padding: spacing.sm,
+    borderRadius: 12,
+    padding: spacing.xs,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
   },
@@ -571,21 +571,21 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 3,
-    lineHeight: 22,
+    marginBottom: 2,
+    lineHeight: 20,
   },
   artist: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.textSecondary,
     fontWeight: '500',
   },
   floatingLike: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   floatingLikeActive: {
     shadowColor: '#ff0066',
@@ -595,9 +595,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   floatingLikeGradient: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
@@ -606,8 +606,8 @@ const styles = StyleSheet.create({
   
   // Radial Progress
   progressSection: {
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
   },
   timeRow: {
     flexDirection: 'row',
@@ -654,18 +654,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
-    gap: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
+    gap: spacing.sm,
   },
   sideControl: {
-    width: 54,
-    height: 54,
+    width: 48,
+    height: 48,
   },
   sideControlInner: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -674,13 +674,13 @@ const styles = StyleSheet.create({
   },
   centerControlWrapper: {
     position: 'relative',
-    width: 76,
-    height: 76,
+    width: 64,
+    height: 64,
   },
   centerControl: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#d500f9',
@@ -690,9 +690,9 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   centerControlInner: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -701,11 +701,11 @@ const styles = StyleSheet.create({
   },
   centerControlRing: {
     position: 'absolute',
-    top: -5,
-    left: -5,
-    width: 86,
-    height: 86,
-    borderRadius: 43,
+    top: -4,
+    left: -4,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     borderWidth: 2,
     borderColor: 'rgba(213,0,249,0.4)',
   },
@@ -713,20 +713,20 @@ const styles = StyleSheet.create({
   // Feature Cards Grid
   featuresGrid: {
     flexDirection: 'row',
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
     gap: spacing.xs,
   },
   featureCard: {
     flex: 1,
-    height: 70,
+    height: 55,
   },
   featureCardGradient: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
@@ -759,17 +759,17 @@ const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingHorizontal: spacing.lg,
-    marginBottom: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.xs,
   },
   actionItem: {
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   actionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -784,12 +784,12 @@ const styles = StyleSheet.create({
   
   // Up Next Card
   upNextCard: {
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    marginHorizontal: spacing.sm,
+    marginBottom: spacing.sm,
   },
   upNextGradient: {
-    borderRadius: 16,
-    padding: spacing.md,
+    borderRadius: 12,
+    padding: spacing.xs,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
   },
@@ -812,9 +812,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   upNextImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 10,
   },
   upNextInfo: {
     flex: 1,
