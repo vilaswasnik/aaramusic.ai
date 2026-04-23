@@ -6,6 +6,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { BollywoodScreen } from '../screens/BollywoodScreen';
 import { HollywoodScreen } from '../screens/HollywoodScreen';
 import { SouthIndianScreen } from '../screens/SouthIndianScreen';
+import { MarathiScreen } from '../screens/MarathiScreen';
 import { DJMixScreen } from '../screens/DJMixScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { PlayerScreen } from '../screens/PlayerScreen';
@@ -71,6 +72,15 @@ const TabNavigator = () => {
           tabBarLabel: 'South',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="disc" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Marathi"
+        component={MarathiScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="flower" size={size} color={color} />
           ),
         }}
       />
