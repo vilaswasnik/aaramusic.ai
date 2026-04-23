@@ -2,7 +2,7 @@
   "name": "aaramusic.ai",
   "version": "1.0.0",
   "description": "Aara Music - Modern Music Streaming App",
-  "main": "server.js",
+  "main": "expo/AppEntry.js",
   "scripts": {
     "start": "node server.js",
     "android": "expo start --android",
