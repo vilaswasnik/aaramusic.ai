@@ -2,7 +2,7 @@ services:
   - type: web
     name: aaramusic
     runtime: node
-    buildCommand: npm ci && npx expo export --platform web
+    buildCommand: npm ci && npm run build:render
     startCommand: node server.js
     envVars:
       - key: NODE_ENV

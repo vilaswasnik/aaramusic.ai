@@ -3,7 +3,8 @@
  * 
  * This config file allows different settings for dev vs production:
  * - DEV: No baseUrl, works immediately in codespace
- * - PROD: Adds baseUrl for GitHub Pages deployment
+ * - GITHUB PAGES: Adds baseUrl for subfolder deployment
+ * - RENDER: No baseUrl (hosted at root)
  * 
  * Environment is controlled by NODE_ENV or explicitly via build commands.
  */
@@ -15,14 +16,23 @@ module.exports = ({ config }) => {
   // Start with base config from app.json
   const baseConfig = require('./app.json').expo;
 
-  // Production web build configuration (for GitHub Pages)
-  if (IS_PRODUCTION || IS_GITHUB_PAGES_BUILD) {
-    console.log('🚀 Building for PRODUCTION (GitHub Pages)');
+  // GitHub Pages production build (requires baseUrl for subfolder)
+  if (IS_GITHUB_PAGES_BUILD) {
+    console.log('🚀 Building for GITHUB PAGES (with baseUrl)');
     return {
       ...baseConfig,
       experiments: {
         baseUrl: '/aaramusic.ai',
       },
+    };
+  }
+
+  // Render production build (no baseUrl, hosted at root)
+  if (IS_PRODUCTION) {
+    console.log('🚀 Building for PRODUCTION (Render - no baseUrl)');
+    return {
+      ...baseConfig,
+      // No experiments/baseUrl for Render
     };
   }
 
