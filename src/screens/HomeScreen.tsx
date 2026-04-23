@@ -26,6 +26,9 @@ import {
   searchSongs,
   resetFallbackDataFlag,
   isUsingFallbackData,
+  fetchBollywoodTopSongs,
+  fetchHollywoodTopSongs,
+  fetchSouthIndianTopSongs,
 } from '../services/musicService';
 import {
   getSmartRecommendations,
@@ -57,6 +60,12 @@ export const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showFallbackBanner, setShowFallbackBanner] = useState(false);
 
+  // Genre songs state
+  const [bollywoodSongs, setBollywoodSongs] = useState<Song[]>([]);
+  const [hollywoodSongs, setHollywoodSongs] = useState<Song[]>([]);
+  const [southIndianSongs, setSouthIndianSongs] = useState<Song[]>([]);
+  const [marathiSongs, setMarathiSongs] = useState<Song[]>([]);
+
   // AI Chat state
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -85,12 +94,20 @@ export const HomeScreen: React.FC = () => {
     if (!loading) {
       getSmartRecommendations(listeningHistory).then(setAiRecs);
       loadDailyMixes();
-    }
-  }, [listeningHistory.length, loading]);
-
-  const loadData = async () => {
-    setLoading(true);
-    resetFallbackDataFlag();
+    }, bollywood, hollywood, southIndian, marathi] = await Promise.all([
+      fetchTopSongs(50),
+      fetchCuratedPlaylists(),
+      fetchBollywoodTopSongs(10),
+      fetchHollywoodTopSongs(10),
+      fetchSouthIndianTopSongs(10),
+      searchSongs('marathi songs hits').then(results => results.slice(0, 10)),
+    ]);
+    setTopSongs(songs);
+    setPlaylists(curatedPlaylists);
+    setBollywoodSongs(bollywood);
+    setHollywoodSongs(hollywood);
+    setSouthIndianSongs(southIndian);
+    setMarathiSongs(marathi
     const [songs, curatedPlaylists] = await Promise.all([
       fetchTopSongs(50),
       fetchCuratedPlaylists(),
@@ -561,6 +578,90 @@ export const HomeScreen: React.FC = () => {
             </View>
             </FadeInView>
 
+            {/* Bollywood Hits */}
+            {bollywoodSongs.length > 0 && (
+              <FadeInView delay={220}>
+                <View style={styles.section}>
+                  <View style={styles.genreHeader}>
+                    <Text style={styles.genreEmoji}>🎬</Text>
+                    <Text style={styles.sectionTitle}>Bollywood Hits</Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalScroll}
+                  >
+                    {bollywoodSongs.map((song) => (
+                      <SongCard key={song.id} song={song} />
+                    ))}
+                  </ScrollView>
+                </View>
+              </FadeInView>
+            )}
+
+            {/* Hollywood Hits */}
+            {hollywoodSongs.length > 0 && (
+              <FadeInView delay={240}>
+                <View style={styles.section}>
+                  <View style={styles.genreHeader}>
+                    <Text style={styles.genreEmoji}>🎸</Text>
+                    <Text style={styles.sectionTitle}>Hollywood Hits</Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalScroll}
+                  >
+                    {hollywoodSongs.map((song) => (
+                      <SongCard key={song.id} song={song} />
+                    ))}
+                  </ScrollView>
+                </View>
+              </FadeInView>
+            )}
+
+            {/* South Indian Hits */}
+            {southIndianSongs.length > 0 && (
+              <FadeInView delay={260}>
+                <View style={styles.section}>
+                  <View style={styles.genreHeader}>
+                    <Text style={styles.genreEmoji}>🎵</Text>
+                    <Text style={styles.sectionTitle}>South Indian Hits</Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalScroll}
+                  >
+                    {southIndianSongs.map((song) => (
+                      <SongCard key={song.id} song={song} />
+                    ))}
+                  </ScrollView>
+                </View>
+              </FadeInView>
+            )}
+
+            {/* Marathi Hits */}
+            {marathiSongs.length > 0 && (
+              <FadeInView delay={280}>
+                <View style={styles.section}>
+                  <View style={styles.genreHeader}>
+                    <Text style={styles.genreEmoji}>🌺</Text>
+                    <Text style={styles.sectionTitle}>Marathi Hits</Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.horizontalScroll}
+                  >
+                    {marathiSongs.map((song) => (
+                      <SongCard key={song.id} song={song} />
+                    ))}
+                  </ScrollView>
+                </View>
+              </FadeInView>
+            )}
+
             {/* New Releases */}
             {newReleases.length > 0 && (
               <View style={styles.section}>
@@ -732,6 +833,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingRight: spacing.md,
     marginBottom: spacing.sm,
+  },
+  genreHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+  },
+  genreEmoji: {
+    fontSize: 24,
   },
   scrollView: {
     flex: 1,
