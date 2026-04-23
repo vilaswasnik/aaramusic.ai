@@ -301,49 +301,49 @@ export const HomeScreen: React.FC = () => {
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <View style={styles.headerRow}>
           <View style={styles.logoContainer}>
-            {/* Unique "A" shaped logo with AI circuit pattern */}
+            {/* Unique "AR" logo from Aara with AI elements */}
             <View style={styles.logoWrapper}>
-              {/* Background gradient circle */}
+              {/* Outer glow ring */}
               <LinearGradient
-                colors={['rgba(213,0,249,0.2)', 'rgba(255,0,102,0.2)', 'rgba(255,107,53,0.2)']}
+                colors={['rgba(213,0,249,0.3)', 'rgba(255,0,102,0.3)']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.logoBackground}
+                style={styles.logoGlowRing}
               />
               
-              {/* "A" shape made from gradient bars */}
-              <View style={styles.letterA}>
-                {/* Left diagonal bar */}
-                <LinearGradient
-                  colors={['#d500f9', '#ff0066']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  style={styles.aLeftBar}
-                />
-                {/* Right diagonal bar */}
-                <LinearGradient
-                  colors={['#ff0066', '#ff6b35']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  style={styles.aRightBar}
-                />
-                {/* Middle crossbar with AI spark */}
-                <View style={styles.aCrossbar}>
+              {/* Main logo container */}
+              <View style={styles.logoMain}>
+                {/* Letter "A" */}
+                <View style={styles.letterAContainer}>
                   <LinearGradient
-                    colors={['#FFD700', '#FFA500']}
+                    colors={['#d500f9', '#ff0066']}
                     start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.aCrossbarGradient}
-                  />
-                  {/* AI spark indicator */}
-                  <View style={styles.aiSpark} />
+                    end={{ x: 1, y: 1 }}
+                    style={styles.letterAShape}
+                  >
+                    <Text style={styles.letterText}>A</Text>
+                  </LinearGradient>
+                </View>
+                
+                {/* Letter "R" with AI spark */}
+                <View style={styles.letterRContainer}>
+                  <LinearGradient
+                    colors={['#ff0066', '#ff6b35']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.letterRShape}
+                  >
+                    <Text style={styles.letterText}>R</Text>
+                  </LinearGradient>
+                  {/* AI indicator spark */}
+                  <View style={styles.aiSparkDot} />
                 </View>
               </View>
               
-              {/* Circuit nodes at corners (representing AI) */}
-              <View style={styles.circuitNode1} />
-              <View style={styles.circuitNode2} />
-              <View style={styles.circuitNode3} />
+              {/* Musical note accent */}
+              <View style={styles.musicNoteAccent}>
+                <Text style={styles.musicNoteText}>♪</Text>
+              </View>
             </View>
           </View>
           <Text style={styles.headerTitle}>Aara Music</Text>
@@ -912,98 +912,88 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   logoWrapper: {
-    width: 36,
+    width: 40,
     height: 36,
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoBackground: {
+  logoGlowRing: {
     position: 'absolute',
-    width: 36,
+    width: 40,
     height: 36,
-    borderRadius: 18,
-    opacity: 0.6,
+    borderRadius: 8,
+    opacity: 0.5,
   },
-  letterA: {
-    width: 24,
-    height: 24,
+  logoMain: {
+    flexDirection: 'row',
+    gap: 2,
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  letterAContainer: {
     position: 'relative',
+  },
+  letterAShape: {
+    width: 18,
+    height: 22,
+    borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#d500f9',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
   },
-  aLeftBar: {
+  letterRContainer: {
+    position: 'relative',
+  },
+  letterRShape: {
+    width: 16,
+    height: 22,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#ff0066',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
+  },
+  letterText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  aiSparkDot: {
     position: 'absolute',
-    width: 3,
-    height: 20,
-    left: 4,
-    top: 2,
-    borderRadius: 2,
-    transform: [{ rotate: '-15deg' }],
-  },
-  aRightBar: {
-    position: 'absolute',
-    width: 3,
-    height: 20,
-    right: 4,
-    top: 2,
-    borderRadius: 2,
-    transform: [{ rotate: '15deg' }],
-  },
-  aCrossbar: {
-    position: 'absolute',
-    width: 12,
-    height: 2,
-    top: 12,
-    overflow: 'hidden',
-    borderRadius: 1,
-  },
-  aCrossbarGradient: {
-    width: '100%',
-    height: '100%',
-  },
-  aiSpark: {
-    position: 'absolute',
-    width: 3,
-    height: 3,
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
     backgroundColor: '#FFD700',
-    borderRadius: 1.5,
-    right: -1,
-    top: -1,
+    top: -2,
+    right: -2,
     shadowColor: '#FFD700',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    zIndex: 2,
   },
-  circuitNode1: {
+  musicNoteAccent: {
     position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#d500f9',
-    top: 2,
-    right: 2,
-    opacity: 0.7,
+    bottom: -2,
+    right: -2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255,107,53,0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  circuitNode2: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#ff0066',
-    bottom: 2,
-    left: 2,
-    opacity: 0.7,
-  },
-  circuitNode3: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#ff6b35',
-    top: 8,
-    left: 0,
-    opacity: 0.7,
+  musicNoteText: {
+    color: '#fff',
+    fontSize: 8,
+    fontWeight: 'bold',
   },
   aiBadge: {
     flexDirection: 'row',
