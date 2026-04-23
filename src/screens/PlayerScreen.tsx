@@ -142,14 +142,14 @@ export const PlayerScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="chevron-down" size={32} color={colors.text} />
+            <Ionicons name="chevron-down" size={28} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerSubtitle}>PLAYING FROM</Text>
             <Text style={styles.headerTitle}>Your Library</Text>
           </View>
           <TouchableOpacity style={styles.moreButton}>
-            <Ionicons name="ellipsis-horizontal" size={28} color={colors.text} />
+            <Ionicons name="ellipsis-horizontal" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -170,7 +170,7 @@ export const PlayerScreen: React.FC = () => {
           </Animated.View>
           {isPlaying && (
             <View style={styles.equalizerRow}>
-              <EqualizerBars isPlaying={isPlaying} barCount={7} color={colors.primary} size="medium" />
+              <EqualizerBars isPlaying={isPlaying} barCount={5} color={colors.primary} size="small" />
             </View>
           )}
         </View>
@@ -190,7 +190,7 @@ export const PlayerScreen: React.FC = () => {
               <TouchableOpacity onPress={handleLike} style={styles.likeBubble}>
                 <Ionicons
                   name={currentSong && isLiked(currentSong.id) ? 'heart' : 'heart-outline'}
-                  size={32}
+                  size={26}
                   color={currentSong && isLiked(currentSong.id) ? '#ff0066' : colors.text}
                 />
               </TouchableOpacity>
@@ -221,7 +221,7 @@ export const PlayerScreen: React.FC = () => {
         <View style={styles.controlsContainer}>
           <TouchableOpacity onPress={previous} style={styles.controlButton}>
             <View style={styles.controlButtonInner}>
-              <Ionicons name="play-skip-back" size={32} color={colors.text} />
+              <Ionicons name="play-skip-back" size={28} color={colors.text} />
             </View>
           </TouchableOpacity>
 
@@ -234,7 +234,7 @@ export const PlayerScreen: React.FC = () => {
             >
               <Ionicons
                 name={isPlaying ? 'pause' : 'play'}
-                size={40}
+                size={34}
                 color="#fff"
               />
             </LinearGradient>
@@ -242,7 +242,7 @@ export const PlayerScreen: React.FC = () => {
 
           <TouchableOpacity onPress={next} style={styles.controlButton}>
             <View style={styles.controlButtonInner}>
-              <Ionicons name="play-skip-forward" size={32} color={colors.text} />
+              <Ionicons name="play-skip-forward" size={28} color={colors.text} />
             </View>
           </TouchableOpacity>
         </View>
@@ -287,17 +287,17 @@ export const PlayerScreen: React.FC = () => {
         {/* Bottom Actions */}
         <View style={styles.bottomActions}>
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="list-outline" size={26} color={colors.text} />
+            <Ionicons name="list-outline" size={22} color={colors.text} />
             <Text style={styles.actionButtonText}>Queue</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="add-circle-outline" size={26} color={colors.text} />
+            <Ionicons name="add-circle-outline" size={22} color={colors.text} />
             <Text style={styles.actionButtonText}>Add to Playlist</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="share-outline" size={26} color={colors.text} />
+            <Ionicons name="share-outline" size={22} color={colors.text} />
             <Text style={styles.actionButtonText}>Share</Text>
           </TouchableOpacity>
         </View>
@@ -335,19 +335,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.md,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 50,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
+    paddingTop: 40,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.sm,
   },
   backButton: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -357,19 +357,19 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     color: colors.textSecondary,
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
-    letterSpacing: 1.2,
+    letterSpacing: 1,
     marginBottom: 2,
   },
   headerTitle: {
     color: colors.text,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
   },
   moreButton: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
@@ -377,32 +377,32 @@ const styles = StyleSheet.create({
   // Artwork Section
   artworkContainer: {
     alignItems: 'center',
-    marginTop: spacing.lg,
-    marginBottom: spacing.xl,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
   artworkWrapper: {
     position: 'relative',
   },
   artwork: {
-    width: width * 0.82,
-    height: width * 0.82,
-    borderRadius: 20,
+    width: width * 0.68,
+    height: width * 0.68,
+    borderRadius: 16,
   },
   artworkGlow: {
     position: 'absolute',
-    width: width * 0.82,
-    height: width * 0.82,
-    borderRadius: 20,
-    opacity: 0.4,
+    width: width * 0.68,
+    height: width * 0.68,
+    borderRadius: 16,
+    opacity: 0.3,
     ...Platform.select({
       ios: {
         shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.6,
-        shadowRadius: 30,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 20,
       },
       android: {
-        elevation: 16,
+        elevation: 12,
       },
     }),
   },
@@ -412,28 +412,28 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    borderRadius: 20,
+    borderRadius: 16,
     backgroundColor: 'rgba(0,0,0,0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   vinylCenter: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.1)',
   },
   equalizerRow: {
     alignItems: 'center',
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   
   // Song Info
   infoContainer: {
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
   infoHeader: {
     flexDirection: 'row',
@@ -444,21 +444,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: spacing.xs,
-    lineHeight: 32,
+    lineHeight: 26,
   },
   artist: {
     color: colors.textSecondary,
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '500',
   },
   likeBubble: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -468,29 +468,29 @@ const styles = StyleSheet.create({
   
   // Progress Bar
   progressContainer: {
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.xl,
-  },
-  progressBarWrapper: {
+    paddingHorizontal: spacing.lg,
     marginBottom: spacing.md,
   },
+  progressBarWrapper: {
+    marginBottom: spacing.sm,
+  },
   progressTrack: {
-    height: 6,
+    height: 4,
     backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 3,
+    borderRadius: 2,
     overflow: 'visible',
     position: 'relative',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 2,
   },
   progressThumb: {
     position: 'absolute',
-    top: -4,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    top: -3,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: '#fff',
     marginLeft: -7,
     shadowColor: '#000',
@@ -514,39 +514,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.xl,
-    gap: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    gap: spacing.md,
   },
   controlButton: {
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
   },
   controlButtonInner: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(255,255,255,0.08)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   playButtonWrapper: {
-    width: 80,
-    height: 80,
+    width: 68,
+    height: 68,
   },
   playButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
   },
   
   // Secondary Controls
@@ -554,9 +554,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
-    marginBottom: spacing.xl,
-    gap: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    gap: spacing.md,
   },
   secondaryButton: {
     width: 44,
@@ -569,19 +569,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 215, 0, 0.15)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.3)',
-    gap: 8,
+    gap: 6,
   },
   aiRadioButtonLoading: {
     opacity: 0.7,
   },
   aiRadioText: {
     color: '#FFD700',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
   },
   repeatBadge: {
@@ -606,10 +606,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    marginHorizontal: spacing.lg,
-    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 16,
     borderWidth: 1,
