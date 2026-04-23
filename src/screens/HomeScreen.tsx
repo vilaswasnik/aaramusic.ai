@@ -301,25 +301,50 @@ export const HomeScreen: React.FC = () => {
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <View style={styles.headerRow}>
           <View style={styles.logoContainer}>
-            {/* Outer gradient ring */}
-            <LinearGradient
-              colors={['#d500f9', '#ff0066', '#ff6b35']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.logoOuterRing}
-            >
-              {/* Inner circle */}
-              <View style={styles.logoInnerCircle}>
-                {/* Stylized "A" made of bars representing sound waves */}
-                <View style={styles.logoWavesContainer}>
-                  <View style={[styles.logoWave, styles.logoWave1]} />
-                  <View style={[styles.logoWave, styles.logoWave2]} />
-                  <View style={[styles.logoWave, styles.logoWave3]} />
-                  <View style={[styles.logoWave, styles.logoWave4]} />
-                  <View style={[styles.logoWave, styles.logoWave5]} />
+            {/* Unique "A" shaped logo with AI circuit pattern */}
+            <View style={styles.logoWrapper}>
+              {/* Background gradient circle */}
+              <LinearGradient
+                colors={['rgba(213,0,249,0.2)', 'rgba(255,0,102,0.2)', 'rgba(255,107,53,0.2)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.logoBackground}
+              />
+              
+              {/* "A" shape made from gradient bars */}
+              <View style={styles.letterA}>
+                {/* Left diagonal bar */}
+                <LinearGradient
+                  colors={['#d500f9', '#ff0066']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.aLeftBar}
+                />
+                {/* Right diagonal bar */}
+                <LinearGradient
+                  colors={['#ff0066', '#ff6b35']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.aRightBar}
+                />
+                {/* Middle crossbar with AI spark */}
+                <View style={styles.aCrossbar}>
+                  <LinearGradient
+                    colors={['#FFD700', '#FFA500']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.aCrossbarGradient}
+                  />
+                  {/* AI spark indicator */}
+                  <View style={styles.aiSpark} />
                 </View>
               </View>
-            </LinearGradient>
+              
+              {/* Circuit nodes at corners (representing AI) */}
+              <View style={styles.circuitNode1} />
+              <View style={styles.circuitNode2} />
+              <View style={styles.circuitNode3} />
+            </View>
           </View>
           <Text style={styles.headerTitle}>Aara Music</Text>
           <View style={styles.aiBadge}>
@@ -886,52 +911,99 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginRight: 4,
   },
-  logoOuterRing: {
+  logoWrapper: {
+    width: 36,
+    height: 36,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoBackground: {
+    position: 'absolute',
     width: 36,
     height: 36,
     borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 2,
-    shadowColor: '#d500f9',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 5,
+    opacity: 0.6,
   },
-  logoInnerCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#0a0a0a',
+  letterA: {
+    width: 24,
+    height: 24,
+    position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoWavesContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    height: 16,
+  aLeftBar: {
+    position: 'absolute',
+    width: 3,
+    height: 20,
+    left: 4,
+    top: 2,
+    borderRadius: 2,
+    transform: [{ rotate: '-15deg' }],
   },
-  logoWave: {
-    width: 2,
-    backgroundColor: '#fff',
+  aRightBar: {
+    position: 'absolute',
+    width: 3,
+    height: 20,
+    right: 4,
+    top: 2,
+    borderRadius: 2,
+    transform: [{ rotate: '15deg' }],
+  },
+  aCrossbar: {
+    position: 'absolute',
+    width: 12,
+    height: 2,
+    top: 12,
+    overflow: 'hidden',
     borderRadius: 1,
   },
-  logoWave1: {
-    height: 6,
+  aCrossbarGradient: {
+    width: '100%',
+    height: '100%',
   },
-  logoWave2: {
-    height: 12,
+  aiSpark: {
+    position: 'absolute',
+    width: 3,
+    height: 3,
+    backgroundColor: '#FFD700',
+    borderRadius: 1.5,
+    right: -1,
+    top: -1,
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
   },
-  logoWave3: {
-    height: 16,
+  circuitNode1: {
+    position: 'absolute',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#d500f9',
+    top: 2,
+    right: 2,
+    opacity: 0.7,
   },
-  logoWave4: {
-    height: 10,
+  circuitNode2: {
+    position: 'absolute',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#ff0066',
+    bottom: 2,
+    left: 2,
+    opacity: 0.7,
   },
-  logoWave5: {
-    height: 7,
+  circuitNode3: {
+    position: 'absolute',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#ff6b35',
+    top: 8,
+    left: 0,
+    opacity: 0.7,
   },
   aiBadge: {
     flexDirection: 'row',
