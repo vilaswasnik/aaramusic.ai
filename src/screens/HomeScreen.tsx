@@ -300,6 +300,16 @@ export const HomeScreen: React.FC = () => {
       >
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <View style={styles.headerRow}>
+          <View style={styles.logoContainer}>
+            <LinearGradient
+              colors={['#d500f9', '#ff0066']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.logoGradient}
+            >
+              <Ionicons name="musical-notes" size={20} color="#fff" />
+            </LinearGradient>
+          </View>
           <Text style={styles.headerTitle}>Aara Music</Text>
           <View style={styles.aiBadge}>
             <Ionicons name="sparkles" size={12} color="#FFD700" />
@@ -861,6 +871,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  logoContainer: {
+    marginRight: 4,
+  },
+  logoGradient: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#d500f9',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 4,
   },
   aiBadge: {
     flexDirection: 'row',
