@@ -118,9 +118,9 @@ const styles = StyleSheet.create({
     backgroundColor: Platform.OS === 'web' ? 'transparent' : 'rgba(0,0,0,0.4)',
   },
   image: {
-    width: 34,
-    height: 34,
-    borderRadius: 5,
+    width: 24,
+    height: 24,
+    borderRadius: 4,
   },
   info: {
     flex: 1,

@@ -43,7 +43,7 @@ export const SongListItem: React.FC<SongListItemProps> = ({ song, onPress, showM
       <Text style={styles.duration}>{formatDuration(song.duration)}</Text>
       {showMore && (
         <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-vertical" size={20} color={colors.textSecondary} />
+          <Ionicons name="ellipsis-vertical" size={16} color={colors.textSecondary} />
         </TouchableOpacity>
       )}
     </TouchableOpacity>
@@ -54,21 +54,21 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
   },
   image: {
-    width: 36,
-    height: 36,
+    width: 28,
+    height: 28,
     borderRadius: 4,
   },
   info: {
     flex: 1,
-    marginLeft: spacing.md,
+    marginLeft: spacing.sm,
   },
   title: {
     color: colors.text,
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '500',
   },
   activeText: {
@@ -76,13 +76,13 @@ const styles = StyleSheet.create({
   },
   artist: {
     color: colors.textSecondary,
-    fontSize: 13,
+    fontSize: 11,
     marginTop: 2,
   },
   duration: {
     color: colors.textSecondary,
-    fontSize: 13,
-    marginRight: spacing.sm,
+    fontSize: 11,
+    marginRight: spacing.xs,
   },
   moreButton: {
     padding: spacing.xs,

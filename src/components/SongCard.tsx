@@ -14,7 +14,7 @@ import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { AnimatedPressable } from './AnimatedPressable';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.24;
+const CARD_WIDTH = width * 0.12;
 
 interface SongCardProps {
   song: Song;
@@ -34,7 +34,7 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onPress, size = 'mediu
     }
   };
 
-  const cardSize = size === 'small' ? 75 : size === 'large' ? 120 : CARD_WIDTH;
+  const cardSize = size === 'small' ? 40 : size === 'large' ? 60 : CARD_WIDTH;
 
   return (
     <AnimatedPressable onPress={handlePress} style={[styles.container, { width: cardSize }]}>
@@ -45,13 +45,13 @@ export const SongCard: React.FC<SongCardProps> = ({ song, onPress, size = 'mediu
             colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.7)']}
             style={styles.playingOverlay}
           >
-            <Ionicons name="pulse" size={32} color={colors.primary} />
+            <Ionicons name="pulse" size={16} color={colors.primary} />
           </LinearGradient>
         )}
         {!isPlaying && (
           <View style={styles.playHover}>
             <View style={styles.playCircle}>
-              <Ionicons name="play" size={20} color="#fff" />
+              <Ionicons name="play" size={12} color="#fff" />
             </View>
           </View>
         )}
@@ -89,26 +89,26 @@ const styles = StyleSheet.create({
   },
   playHover: {
     position: 'absolute',
-    bottom: 8,
-    right: 8,
+    bottom: 4,
+    right: 4,
   },
   playCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: 'rgba(0,0,0,0.6)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
     color: colors.text,
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: '600',
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
   artist: {
     color: colors.textSecondary,
-    fontSize: 12,
-    marginTop: spacing.xs,
+    fontSize: 9,
+    marginTop: 2,
   },
 });
