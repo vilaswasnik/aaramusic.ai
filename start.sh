@@ -203,39 +203,18 @@ ok "Proxy server ready on port $APP_PORT"
 
 
 # ════════════════════════════════════════════════════════════════
-#  4. MAKE PORT PUBLIC (Codespaces only)
+#  4. VERIFY PORT IS PUBLIC (Codespaces only)
 # ════════════════════════════════════════════════════════════════
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
-  info "Making port $APP_PORT public in Codespaces..."
-
-  PORT_PUBLIC=0
   FORWARDING_DOMAIN="${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
   PUBLIC_URL="https://${CODESPACE_NAME}-${APP_PORT}.${FORWARDING_DOMAIN}"
-
-  # Wait up to 20s for Codespaces to register the port (VS Code scans terminal output for port patterns)
-  for i in $(seq 1 20); do
-    PORT_LIST=$(gh codespace ports -c "$CODESPACE_NAME" 2>/dev/null < /dev/null || echo "")
-    if echo "$PORT_LIST" | grep -q "$APP_PORT"; then
-      PORT_PUBLIC=1
-      break
-    fi
-    sleep 1
-  done
-
-  if [[ $PORT_PUBLIC -eq 1 ]]; then
-    # Port is registered — set it public
-    GH_PROMPT_DISABLED=1 gh codespace ports visibility "$APP_PORT:public" -c "$CODESPACE_NAME" < /dev/null 2>/dev/null && PORT_PUBLIC=1 || PORT_PUBLIC=0
-  fi
-
-  # Final verify: check it doesn't redirect
-  sleep 1
+  # devcontainer.json sets visibility:public automatically — just verify
   HTTP_CHECK=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "$PUBLIC_URL/health" 2>/dev/null || echo "000")
   if [[ "$HTTP_CHECK" == "200" ]]; then
     ok "Port $APP_PORT is public and verified ✓"
   else
-    warn "Port $APP_PORT could not be made public automatically."
-    warn "Open the VS Code Ports tab → right-click port $APP_PORT → Port Visibility → Public"
-    warn "Without this, songs will not load (API calls will be blocked)."
+    warn "Port $APP_PORT may not be public (HTTP $HTTP_CHECK)."
+    warn "Open VS Code Ports tab → right-click port $APP_PORT → Port Visibility → Public"
   fi
 fi
 
@@ -340,19 +319,12 @@ echo -e "${GREEN}═════════════════════
 echo -e "  ${BOLD}Local:${RESET}  http://localhost:$APP_PORT"
 if [[ -n "${CODESPACE_NAME:-}" ]]; then
   PUBLIC_URL="https://${CODESPACE_NAME}-${APP_PORT}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-app.github.dev}"
-  # Final port visibility check — re-run if somehow it became private again
   FINAL_CHECK=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "$PUBLIC_URL/health" 2>/dev/null || echo "000")
-  if [[ "$FINAL_CHECK" != "200" ]]; then
-    warn "Port $APP_PORT is not public — retrying..."
-    GH_PROMPT_DISABLED=1 gh codespace ports visibility "$APP_PORT:public" -c "$CODESPACE_NAME" < /dev/null 2>/dev/null || true
-    sleep 2
-    FINAL_CHECK=$(curl -so /dev/null -w "%{http_code}" --max-time 5 "$PUBLIC_URL/health" 2>/dev/null || echo "000")
-  fi
   if [[ "$FINAL_CHECK" == "200" ]]; then
     echo -e "  ${BOLD}Public:${RESET} $PUBLIC_URL"
   else
     echo -e "  ${BOLD}Public:${RESET} $PUBLIC_URL"
-    warn "Port may not be public — songs may not load. Set port $APP_PORT to Public in the VS Code Ports tab."
+    warn "Port $APP_PORT is not public — open VS Code Ports tab, right-click port $APP_PORT → Public."
   fi
 fi
 echo ""
