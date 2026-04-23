@@ -265,9 +265,9 @@ export const PlayerScreen: React.FC = () => {
               <View style={styles.centerControlInner}>
                 <Ionicons
                   name={isPlaying ? 'pause' : 'play'}
-                  size={30}
+                  size={26}
                   color="#fff"
-                  style={!isPlaying && { marginLeft: 4 }}
+                  style={!isPlaying && { marginLeft: 3 }}
                 />
               </View>
             </LinearGradient>
