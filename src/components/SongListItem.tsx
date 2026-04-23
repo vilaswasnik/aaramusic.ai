@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
   },
   image: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: 4,
   },
   info: {
