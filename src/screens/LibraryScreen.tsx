@@ -16,6 +16,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SongListItem } from '../components/SongListItem';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
+import { useAuth } from '../context/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type TabType = 'recent' | 'liked' | 'notes' | 'playlists' | 'artists';
 
@@ -30,8 +32,21 @@ interface Note {
 const NOTE_COLORS = ['#E91E63', '#9C27B0', '#3F51B5', '#009688', '#FF9800', '#607D8B'];
 
 export const LibraryScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<TabType>('recent');
   const { playSong, listeningHistory, likedSongs } = useMusicPlayer();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Sign out of Aara Music?')) signOut();
+    } else {
+      Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign Out', style: 'destructive', onPress: signOut },
+      ]);
+    }
+  };
 
   // Notes state
   const [notes, setNotes] = useState<Note[]>([]);
@@ -106,7 +121,21 @@ export const LibraryScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <View style={styles.profileRow}>
+          <View style={styles.profileInfo}>
+            <View style={styles.avatarCircle}>
+              <Text style={styles.avatarLetter}>{user?.name?.[0]?.toUpperCase() ?? '?'}</Text>
+            </View>
+            <View>
+              <Text style={styles.profileName}>{user?.name ?? 'Guest'}</Text>
+              <Text style={styles.profileEmail}>{user?.email ?? ''}</Text>
+            </View>
+          </View>
+          <TouchableOpacity onPress={handleSignOut} style={styles.signOutBtn}>
+            <Ionicons name="log-out-outline" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.headerTitle}>Your Library</Text>
         <View style={styles.tabs}>
           {tabs.map((tab) => (
@@ -365,9 +394,45 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    paddingTop: 60,
     paddingBottom: spacing.md,
     paddingHorizontal: spacing.md,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
+  profileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  avatarCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  profileName: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  profileEmail: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginTop: 1,
+  },
+  signOutBtn: {
+    padding: 8,
   },
   headerTitle: {
     ...typography.h1,
