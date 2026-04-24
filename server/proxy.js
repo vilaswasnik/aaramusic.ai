@@ -95,6 +95,27 @@ app.post('/auth/logout', (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/auth/change-password', (req, res) => {
+  const token = (req.headers['authorization'] || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Not logged in.' });
+  const sessions = readJSON(SESSIONS_FILE);
+  const sessionUser = sessions[token];
+  if (!sessionUser) return res.status(401).json({ error: 'Invalid session.' });
+
+  const { oldPassword, newPassword } = req.body || {};
+  if (!oldPassword || !newPassword) return res.status(400).json({ error: 'Missing fields.' });
+  if (newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+
+  const users = readJSON(USERS_FILE);
+  const stored = users[sessionUser.email];
+  if (!stored || stored.password !== hashPassword(oldPassword))
+    return res.status(401).json({ error: 'Current password is incorrect.' });
+
+  stored.password = hashPassword(newPassword);
+  writeJSON(USERS_FILE, users);
+  res.json({ ok: true });
+});
+
 // ── Lyrics proxy (lyrics.ovh) ────────────────────────────────
 app.get('/lyrics/:artist/:title', async (req, res) => {
   try {

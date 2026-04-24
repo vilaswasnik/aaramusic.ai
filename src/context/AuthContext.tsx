@@ -14,6 +14,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const TOKEN_KEY = 'aara_token';
@@ -88,8 +89,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
+  const changePassword = async (oldPassword: string, newPassword: string) => {
+    const token = await AsyncStorage.getItem(TOKEN_KEY);
+    await authFetch('/auth/change-password', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token ?? ''}` },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

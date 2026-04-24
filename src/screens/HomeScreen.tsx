@@ -9,6 +9,10 @@ import {
   TextInput,
   ActivityIndicator,
   Dimensions,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +23,7 @@ import { FadeInView } from '../components/FadeInView';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { ApiFallbackBanner } from '../components/ApiFallbackBanner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../context/AuthContext';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import {
@@ -55,6 +60,49 @@ const getGreeting = (): string => {
 
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { user, signOut, changePassword } = useAuth();
+
+  // Profile modal state
+  const [showProfile, setShowProfile] = useState(false);
+  const [profileTab, setProfileTab] = useState<'details' | 'password' | 'recovery'>('details');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwError, setPwError] = useState('');
+  const [pwSuccess, setPwSuccess] = useState('');
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+
+  const handleChangePassword = async () => {
+    setPwError('');
+    setPwSuccess('');
+    if (!oldPassword) { setPwError('Enter your current password.'); return; }
+    if (newPassword.length < 6) { setPwError('New password must be at least 6 characters.'); return; }
+    if (newPassword !== confirmPassword) { setPwError('New passwords do not match.'); return; }
+    setPwLoading(true);
+    try {
+      await changePassword(oldPassword, newPassword);
+      setPwSuccess('Password changed successfully!');
+      setOldPassword(''); setNewPassword(''); setConfirmPassword('');
+    } catch (e: any) {
+      setPwError(e.message || 'Failed to change password.');
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
+  const handleSignOut = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Sign out of Aara Music?')) { setShowProfile(false); signOut(); }
+    } else {
+      Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign Out', style: 'destructive', onPress: () => { setShowProfile(false); signOut(); } },
+      ]);
+    }
+  };
+
   const { playSong, playerState, listeningHistory, likedSongs, pause, resume, next, previous, toggleShuffle, toggleRepeat } = useMusicPlayer();
   const [topSongs, setTopSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
@@ -357,6 +405,10 @@ export const HomeScreen: React.FC = () => {
             <Ionicons name="sparkles" size={12} color="#FFD700" />
             <Text style={styles.aiBadgeText}>AI</Text>
           </View>
+          <View style={{ flex: 1 }} />
+          <TouchableOpacity onPress={() => setShowProfile(true)} style={styles.profileAvatar} activeOpacity={0.8}>
+            <Text style={styles.profileAvatarText}>{user?.name?.[0]?.toUpperCase() ?? '?'}</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
 
@@ -886,6 +938,186 @@ export const HomeScreen: React.FC = () => {
           </>
         )}
       </ScrollView>
+
+      {/* ===== ACCOUNT MODAL ===== */}
+      <Modal visible={showProfile} animationType="slide" transparent onRequestClose={() => setShowProfile(false)}>
+        <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalSheet}>
+
+            {/* Header */}
+            <View style={styles.modalHeader}>
+              <View style={styles.modalAvatarLarge}>
+                <Text style={styles.modalAvatarText}>{user?.name?.[0]?.toUpperCase() ?? '?'}</Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: 14 }}>
+                <Text style={styles.modalName}>{user?.name}</Text>
+                <Text style={styles.modalEmail}>{user?.email}</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowProfile(false)} style={styles.modalClose}>
+                <Ionicons name="close" size={22} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Tabs */}
+            <View style={styles.modalTabs}>
+              {(['details', 'password', 'recovery'] as const).map((tab) => (
+                <TouchableOpacity
+                  key={tab}
+                  style={[styles.modalTab, profileTab === tab && styles.modalTabActive]}
+                  onPress={() => { setProfileTab(tab); setPwError(''); setPwSuccess(''); }}
+                >
+                  <Text style={[styles.modalTabText, profileTab === tab && styles.modalTabTextActive]}>
+                    {tab === 'details' ? 'Account' : tab === 'password' ? 'Password' : 'Recovery'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Tab: Account Details */}
+            {profileTab === 'details' && (
+              <View style={styles.modalContent}>
+                <View style={styles.detailRow}>
+                  <Ionicons name="person-outline" size={18} color={colors.primary} />
+                  <View style={styles.detailText}>
+                    <Text style={styles.detailLabel}>Full Name</Text>
+                    <Text style={styles.detailValue}>{user?.name}</Text>
+                  </View>
+                </View>
+                <View style={styles.detailRow}>
+                  <Ionicons name="mail-outline" size={18} color={colors.primary} />
+                  <View style={styles.detailText}>
+                    <Text style={styles.detailLabel}>Email Address</Text>
+                    <Text style={styles.detailValue}>{user?.email}</Text>
+                  </View>
+                </View>
+                <View style={styles.detailRow}>
+                  <Ionicons name="shield-checkmark-outline" size={18} color="#4CAF50" />
+                  <View style={styles.detailText}>
+                    <Text style={styles.detailLabel}>Account Status</Text>
+                    <Text style={[styles.detailValue, { color: '#4CAF50' }]}>Active</Text>
+                  </View>
+                </View>
+                <View style={styles.detailRow}>
+                  <Ionicons name="musical-notes-outline" size={18} color={colors.primary} />
+                  <View style={styles.detailText}>
+                    <Text style={styles.detailLabel}>Songs Liked</Text>
+                    <Text style={styles.detailValue}>{likedSongs.length}</Text>
+                  </View>
+                </View>
+                <View style={styles.detailRow}>
+                  <Ionicons name="time-outline" size={18} color={colors.primary} />
+                  <View style={styles.detailText}>
+                    <Text style={styles.detailLabel}>Recently Played</Text>
+                    <Text style={styles.detailValue}>{listeningHistory.length} tracks</Text>
+                  </View>
+                </View>
+                <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut} activeOpacity={0.8}>
+                  <Ionicons name="log-out-outline" size={18} color="#FF5252" />
+                  <Text style={styles.signOutText}>Sign Out</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Tab: Change Password */}
+            {profileTab === 'password' && (
+              <View style={styles.modalContent}>
+                <Text style={styles.sectionHint}>Choose a strong password (min. 6 characters)</Text>
+                {pwError ? <View style={styles.alertBox}><Ionicons name="alert-circle" size={15} color="#FF5252" /><Text style={styles.alertText}>{pwError}</Text></View> : null}
+                {pwSuccess ? <View style={[styles.alertBox, styles.alertSuccess]}><Ionicons name="checkmark-circle" size={15} color="#4CAF50" /><Text style={[styles.alertText, { color: '#4CAF50' }]}>{pwSuccess}</Text></View> : null}
+
+                <Text style={styles.inputLabel}>Current Password</Text>
+                <View style={styles.inputRow}>
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="Enter current password"
+                    placeholderTextColor={colors.textSecondary}
+                    secureTextEntry={!showOld}
+                    value={oldPassword}
+                    onChangeText={setOldPassword}
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity onPress={() => setShowOld(v => !v)} style={styles.eyeBtn}>
+                    <Ionicons name={showOld ? 'eye-off-outline' : 'eye-outline'} size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.inputLabel}>New Password</Text>
+                <View style={styles.inputRow}>
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="Enter new password"
+                    placeholderTextColor={colors.textSecondary}
+                    secureTextEntry={!showNew}
+                    value={newPassword}
+                    onChangeText={setNewPassword}
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity onPress={() => setShowNew(v => !v)} style={styles.eyeBtn}>
+                    <Ionicons name={showNew ? 'eye-off-outline' : 'eye-outline'} size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.inputLabel}>Confirm New Password</Text>
+                <View style={styles.inputRow}>
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="Repeat new password"
+                    placeholderTextColor={colors.textSecondary}
+                    secureTextEntry
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    autoCapitalize="none"
+                  />
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.primaryBtn, (pwLoading || !oldPassword || !newPassword) && { opacity: 0.5 }]}
+                  onPress={handleChangePassword}
+                  disabled={pwLoading || !oldPassword || !newPassword}
+                  activeOpacity={0.8}
+                >
+                  {pwLoading
+                    ? <ActivityIndicator color="#fff" size="small" />
+                    : <><Ionicons name="lock-closed-outline" size={16} color="#fff" /><Text style={styles.primaryBtnText}>Update Password</Text></>}
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Tab: Recovery */}
+            {profileTab === 'recovery' && (
+              <View style={styles.modalContent}>
+                <View style={styles.recoveryCard}>
+                  <Ionicons name="information-circle-outline" size={28} color={colors.primary} style={{ marginBottom: 10 }} />
+                  <Text style={styles.recoveryTitle}>Account Recovery</Text>
+                  <Text style={styles.recoveryBody}>
+                    If you forget your password, you can recover your account by:
+                  </Text>
+                  <View style={styles.recoveryStep}>
+                    <View style={styles.stepNum}><Text style={styles.stepNumText}>1</Text></View>
+                    <Text style={styles.stepText}>Contact the admin at <Text style={{ color: colors.primary }}>vilas.wasnik@live.com</Text> with your registered email</Text>
+                  </View>
+                  <View style={styles.recoveryStep}>
+                    <View style={styles.stepNum}><Text style={styles.stepNumText}>2</Text></View>
+                    <Text style={styles.stepText}>Your password will be reset and sent back to you</Text>
+                  </View>
+                  <View style={styles.recoveryStep}>
+                    <View style={styles.stepNum}><Text style={styles.stepNumText}>3</Text></View>
+                    <Text style={styles.stepText}>Log in with the new password and change it immediately</Text>
+                  </View>
+                </View>
+                <View style={[styles.recoveryCard, { marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+                  <Ionicons name="key-outline" size={22} color="#FFD700" />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: colors.text, fontWeight: '700', fontSize: 14 }}>Your registered email</Text>
+                    <Text style={{ color: colors.primary, fontSize: 13, marginTop: 2 }}>{user?.email}</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -1013,6 +1245,21 @@ const styles = StyleSheet.create({
     color: '#FFD700',
     fontSize: 11,
     fontWeight: '700',
+  },
+  profileAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.18)',
+  },
+  profileAvatarText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -1331,5 +1578,234 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.lg,
     fontStyle: 'italic',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    maxHeight: '88%',
+    backgroundColor: '#111111',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  modalAvatarLarge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+  },
+  modalAvatarText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: '800',
+  },
+  modalName: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  modalEmail: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    marginTop: 3,
+  },
+  modalClose: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.card,
+  },
+  modalTabs: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 4,
+    marginBottom: spacing.lg,
+  },
+  modalTab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalTabActive: {
+    backgroundColor: colors.primary,
+  },
+  modalTabText: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  modalTabTextActive: {
+    color: '#fff',
+  },
+  modalContent: {
+    paddingBottom: spacing.md,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: spacing.md,
+    marginBottom: 12,
+    gap: 12,
+  },
+  detailText: {
+    flex: 1,
+  },
+  detailLabel: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginBottom: 3,
+  },
+  detailValue: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  signOutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255,82,82,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,82,82,0.3)',
+    borderRadius: 16,
+    paddingVertical: 14,
+    marginTop: spacing.sm,
+  },
+  signOutText: {
+    color: '#FF5252',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  sectionHint: {
+    color: colors.textSecondary,
+    fontSize: 13,
+    marginBottom: 12,
+  },
+  alertBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255,82,82,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,82,82,0.22)',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginBottom: 12,
+  },
+  alertSuccess: {
+    backgroundColor: 'rgba(76,175,80,0.08)',
+    borderColor: 'rgba(76,175,80,0.22)',
+  },
+  alertText: {
+    color: '#FFB3B3',
+    fontSize: 13,
+    flex: 1,
+  },
+  inputLabel: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 8,
+    marginTop: 6,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    paddingLeft: 14,
+    paddingRight: 10,
+    marginBottom: 12,
+  },
+  modalInput: {
+    flex: 1,
+    color: colors.text,
+    paddingVertical: 14,
+    fontSize: 14,
+  },
+  eyeBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryBtn: {
+    marginTop: spacing.sm,
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  primaryBtnText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  recoveryCard: {
+    backgroundColor: colors.card,
+    borderRadius: 18,
+    padding: spacing.lg,
+  },
+  recoveryTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  recoveryBody: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: spacing.md,
+  },
+  recoveryStep: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginBottom: 12,
+  },
+  stepNum: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  stepNumText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  stepText: {
+    flex: 1,
+    color: colors.text,
+    fontSize: 13,
+    lineHeight: 19,
   },
 });
