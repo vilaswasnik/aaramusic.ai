@@ -4,6 +4,8 @@ const axios = require('axios');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const fs = require('fs');
+const crypto = require('crypto');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
@@ -13,6 +15,25 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const PORT = IS_PRODUCTION ? (process.env.PORT || 3001) : 8082;
 const EXPO_PORT = process.env.EXPO_PORT || 8083;
 
+// ── Auth helpers ──────────────────────────────────────────────
+const DATA_DIR = path.join(__dirname, '..', '.data');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+
+function ensureDataDir() {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+function readJSON(file) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return {}; }
+}
+function writeJSON(file, data) {
+  ensureDataDir();
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+}
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password + 'aaramusic_salt').digest('hex');
+}
+
 // ── Middleware ───────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
@@ -20,6 +41,58 @@ app.use(express.json());
 // ── Health check (used by start.sh readiness probe) ──────────
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', env: IS_PRODUCTION ? 'production' : 'development' });
+});
+
+// ── Auth endpoints ────────────────────────────────────────────
+app.post('/auth/signup', (req, res) => {
+  const { name, email, password } = req.body || {};
+  if (!name || !email || !password) return res.status(400).json({ error: 'Missing fields.' });
+  const users = readJSON(USERS_FILE);
+  const key = email.toLowerCase().trim();
+  if (users[key]) return res.status(409).json({ error: 'An account with this email already exists.' });
+  const user = { id: Date.now().toString(), name: name.trim(), email: key };
+  users[key] = { ...user, password: hashPassword(password) };
+  writeJSON(USERS_FILE, users);
+  const token = crypto.randomBytes(32).toString('hex');
+  const sessions = readJSON(SESSIONS_FILE);
+  sessions[token] = user;
+  writeJSON(SESSIONS_FILE, sessions);
+  res.json({ token, user });
+});
+
+app.post('/auth/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) return res.status(400).json({ error: 'Missing fields.' });
+  const users = readJSON(USERS_FILE);
+  const key = email.toLowerCase().trim();
+  const stored = users[key];
+  if (!stored || stored.password !== hashPassword(password))
+    return res.status(401).json({ error: 'Invalid email or password.' });
+  const { password: _, ...user } = stored;
+  const token = crypto.randomBytes(32).toString('hex');
+  const sessions = readJSON(SESSIONS_FILE);
+  sessions[token] = user;
+  writeJSON(SESSIONS_FILE, sessions);
+  res.json({ token, user });
+});
+
+app.get('/auth/me', (req, res) => {
+  const token = (req.headers['authorization'] || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'No token.' });
+  const sessions = readJSON(SESSIONS_FILE);
+  const user = sessions[token];
+  if (!user) return res.status(401).json({ error: 'Invalid session.' });
+  res.json({ user });
+});
+
+app.post('/auth/logout', (req, res) => {
+  const token = (req.headers['authorization'] || '').replace('Bearer ', '');
+  if (token) {
+    const sessions = readJSON(SESSIONS_FILE);
+    delete sessions[token];
+    writeJSON(SESSIONS_FILE, sessions);
+  }
+  res.json({ ok: true });
 });
 
 // ── Lyrics proxy (lyrics.ovh) ────────────────────────────────

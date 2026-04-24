@@ -1,14 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 interface User {
   id: string;
   name: string;
   email: string;
-}
-
-interface StoredUser extends User {
-  password: string;
 }
 
 interface AuthContextType {
@@ -19,8 +16,26 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const USERS_KEY = 'aara_users';
-const SESSION_KEY = 'aara_session';
+const TOKEN_KEY = 'aara_token';
+
+// Resolve the API base URL — works in both browser and native
+function getApiBase(): string {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+  return 'http://localhost:8082';
+}
+
+async function authFetch(path: string, options: RequestInit = {}) {
+  const base = getApiBase();
+  const res = await fetch(`${base}${path}`, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -29,45 +44,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(SESSION_KEY)
-      .then(session => {
-        if (session) setUser(JSON.parse(session));
-      })
-      .finally(() => setLoading(false));
+    AsyncStorage.getItem(TOKEN_KEY).then(async token => {
+      if (token) {
+        try {
+          const data = await authFetch('/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUser(data.user);
+        } catch {
+          await AsyncStorage.removeItem(TOKEN_KEY);
+        }
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const usersRaw = await AsyncStorage.getItem(USERS_KEY);
-    const users: StoredUser[] = usersRaw ? JSON.parse(usersRaw) : [];
-    const found = users.find(
-      u => u.email.toLowerCase() === email.toLowerCase().trim() && u.password === password
-    );
-    if (!found) throw new Error('Invalid email or password.');
-    const { password: _, ...sessionUser } = found;
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
-    setUser(sessionUser);
+    const data = await authFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    await AsyncStorage.setItem(TOKEN_KEY, data.token);
+    setUser(data.user);
   };
 
   const signUp = async (name: string, email: string, password: string) => {
-    const usersRaw = await AsyncStorage.getItem(USERS_KEY);
-    const users: StoredUser[] = usersRaw ? JSON.parse(usersRaw) : [];
-    const exists = users.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
-    if (exists) throw new Error('An account with this email already exists.');
-    const newUser: StoredUser = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      email: email.toLowerCase().trim(),
-      password,
-    };
-    users.push(newUser);
-    await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
-    const { password: _, ...sessionUser } = newUser;
-    await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
-    setUser(sessionUser);
+    const data = await authFetch('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password }),
+    });
+    await AsyncStorage.setItem(TOKEN_KEY, data.token);
+    setUser(data.user);
   };
 
   const signOut = async () => {
-    await AsyncStorage.removeItem(SESSION_KEY);
+    const token = await AsyncStorage.getItem(TOKEN_KEY);
+    if (token) {
+      await authFetch('/auth/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
+    await AsyncStorage.removeItem(TOKEN_KEY);
     setUser(null);
   };
 
