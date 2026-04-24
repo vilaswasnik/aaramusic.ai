@@ -16,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { colors, spacing } from '../constants/theme';
 import { EqualizerBars } from './EqualizerBars';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ export const MiniPlayer: React.FC = () => {
   const navigation = useNavigation();
   const { playerState, pause, resume, next } = useMusicPlayer();
   const { currentSong, isPlaying, position, duration } = playerState;
+  const insets = useSafeAreaInsets();
 
   const slideAnim = useRef(new Animated.Value(80)).current;
   const prevSongRef = useRef<string | null>(null);
@@ -51,7 +53,7 @@ export const MiniPlayer: React.FC = () => {
   const containerProps = Platform.OS === 'web' ? {} : { intensity: 80, tint: 'dark' as const };
 
   return (
-    <Animated.View style={[styles.wrapper, { transform: [{ translateY: slideAnim }] }]}>
+    <Animated.View style={[styles.wrapper, { bottom: 60 + insets.bottom, transform: [{ translateY: slideAnim }] }]}>
       {/* Progress bar on top edge */}
       <View style={styles.progressBar}>
         <View style={[styles.progressFill, { width: `${progress}%` }]} />
@@ -94,7 +96,6 @@ export const MiniPlayer: React.FC = () => {
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    bottom: 60,
     left: 0,
     right: 0,
   },

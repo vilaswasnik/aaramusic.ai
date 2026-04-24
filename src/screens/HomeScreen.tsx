@@ -18,6 +18,7 @@ import { HomeScreenSkeleton } from '../components/SkeletonLoader';
 import { FadeInView } from '../components/FadeInView';
 import { AnimatedPressable } from '../components/AnimatedPressable';
 import { ApiFallbackBanner } from '../components/ApiFallbackBanner';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography, borderRadius } from '../constants/theme';
 import { useMusicPlayer } from '../context/MusicPlayerContext';
 import {
@@ -53,6 +54,7 @@ const getGreeting = (): string => {
 };
 
 export const HomeScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const { playSong, playerState, listeningHistory, likedSongs, pause, resume, next, previous, toggleShuffle, toggleRepeat } = useMusicPlayer();
   const [topSongs, setTopSongs] = useState<Song[]>([]);
   const [playlists, setPlaylists] = useState<{ name: string; description: string; songs: Song[] }[]>([]);
@@ -300,7 +302,7 @@ export const HomeScreen: React.FC = () => {
       <StatusBar style="light" />
       <LinearGradient
         colors={[colors.gradient1, colors.background]}
-        style={styles.header}
+        style={[styles.header, { paddingTop: insets.top + 16 }]}
       >
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <View style={styles.headerRow}>
@@ -880,7 +882,7 @@ export const HomeScreen: React.FC = () => {
               </View>
             )}
 
-            <View style={{ height: 140 }} />
+            <View style={{ height: 140 + insets.bottom }} />
           </>
         )}
       </ScrollView>
@@ -894,7 +896,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: spacing.md,
   },

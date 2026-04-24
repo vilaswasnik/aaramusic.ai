@@ -14,7 +14,7 @@ import { useMusicPlayer } from '../context/MusicPlayerContext';
 import { AnimatedPressable } from './AnimatedPressable';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.12;
+const CARD_WIDTH = Math.min(Math.max(120, width * 0.35), 160);
 
 interface SongCardProps {
   song: Song;
