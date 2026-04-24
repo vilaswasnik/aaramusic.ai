@@ -10,7 +10,7 @@
     "web": "bash ./start.sh",
     "web:expo": "expo start --web",
     "build:web": "GITHUB_PAGES=true NODE_ENV=production npx expo export --platform web",
-    "build:render": "NODE_ENV=production npx expo export --platform web",
+    "build:render": "NODE_ENV=production node --max-old-space-size=512 ./node_modules/.bin/expo export --platform web",
     "build:web:dev": "npx expo export --platform web",
     "serve": "node server.js"
   },
