@@ -3,11 +3,17 @@ services:
     name: aaramusic
     runtime: node
     region: oregon
-    plan: free
+    plan: starter
     buildCommand: npm ci && npm run build:render
     startCommand: node server.js
+    disk:
+      name: aaramusic-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
         value: "20"
+      - key: DATA_DIR
+        value: /var/data/aaramusic

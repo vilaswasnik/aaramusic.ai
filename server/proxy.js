@@ -16,7 +16,8 @@ const PORT = IS_PRODUCTION ? (process.env.PORT || 3001) : 8082;
 const EXPO_PORT = process.env.EXPO_PORT || 8083;
 
 // ── Auth helpers ──────────────────────────────────────────────
-const DATA_DIR = path.join(__dirname, '..', '.data');
+const DEFAULT_DATA_DIR = IS_PRODUCTION ? '/var/data/aaramusic' : path.join(__dirname, '..', '.data');
+const DATA_DIR = process.env.DATA_DIR || DEFAULT_DATA_DIR;
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 
