@@ -38,7 +38,15 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "output": "single",
-      "bundler": "metro"
+      "bundler": "metro",
+      "themeColor": "#FF1744",
+      "backgroundColor": "#000000",
+      "meta": {
+        "apple-mobile-web-app-capable": { "content": "yes" },
+        "apple-mobile-web-app-status-bar-style": { "content": "black-translucent" },
+        "apple-mobile-web-app-title": { "content": "Aara Music" },
+        "mobile-web-app-capable": { "content": "yes" }
+      }
     },
     "plugins": [
       "expo-av"

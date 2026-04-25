@@ -133,8 +133,19 @@ app.get('/lyrics/:artist/:title', async (req, res) => {
 // Supports Range requests for seeking.
 app.get('/audio', (req, res) => {
   const { url } = req.query;
-  if (!url || typeof url !== 'string' || !url.startsWith('http')) {
-    return res.status(400).json({ error: 'Missing or invalid url param' });
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'Missing url param' });
+  }
+
+  // Only allow Deezer CDN domains to prevent SSRF attacks
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return res.status(400).json({ error: 'Invalid url param' });
+  }
+  if (!parsedUrl.hostname.endsWith('.dzcdn.net')) {
+    return res.status(403).json({ error: 'URL not allowed' });
   }
 
   const range = req.headers['range'];
@@ -144,8 +155,8 @@ app.get('/audio', (req, res) => {
   };
   if (range) reqHeaders['Range'] = range;
 
-  const lib = url.startsWith('https') ? https : http;
-  lib.get(url, { headers: reqHeaders }, (upstream) => {
+  const lib = parsedUrl.protocol === 'https:' ? https : http;
+  lib.get(parsedUrl.href, { headers: reqHeaders }, (upstream) => {
     const status = range && upstream.headers['content-range'] ? 206 : (upstream.statusCode || 200);
     const outHeaders = {
       'Content-Type': upstream.headers['content-type'] || 'audio/mpeg',
