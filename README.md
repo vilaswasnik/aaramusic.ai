@@ -233,7 +233,6 @@ The workflow in `.github/workflows/deploy.yml`:
 - Builds the Expo web export
 - Deploys the static build to **GitHub Pages**
 - Deploys the Cloudflare Worker (requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets)
-- Reads `EXPO_PUBLIC_AUTH_API_URL` from GitHub repository variables for web auth requests
 
 > Note: GitHub Pages hosts the static build only. The audio proxy and Deezer API require the Node.js server — use Render for full functionality.
 
@@ -247,7 +246,7 @@ The workflow in `.github/workflows/deploy.yml`:
 | `CLOUDFLARE_ACCOUNT_ID` | GitHub repo secrets | Cloudflare Worker deployment |
 
 GitHub repository variable:
-`EXPO_PUBLIC_AUTH_API_URL` should point to your live backend URL, for example `https://aaramusic.onrender.com`. Because Expo embeds `EXPO_PUBLIC_*` values into the web bundle, this value is public and should be stored as a repository variable, not a secret.
+`EXPO_PUBLIC_AUTH_API_URL` is optional and only needed when a non-local web build should call a remote auth backend. Leave it unset for local-only workflows.
 
 No API keys are needed for Deezer — the public API is used directly via the proxy.
 

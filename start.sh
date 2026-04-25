@@ -338,10 +338,20 @@ info "Monitoring services... (Press Ctrl+C to stop)"
 while true; do
   # Check if proxy is still running
   if [[ -n "$PROXY_PID" ]] && ! kill -0 "$PROXY_PID" 2>/dev/null; then
-    err "Proxy server died unexpectedly! Check $PROXY_LOG"
+    warn "Proxy server died unexpectedly — attempting restart..."
     tail -20 "$PROXY_LOG"
-    cleanup
-    exit 1
+    NODE_ENV=development PORT=$APP_PORT node server/proxy.js >> "$PROXY_LOG" 2>&1 &
+    PROXY_PID=$!
+    echo "$PROXY_PID" >> "$PID_FILE"
+    sleep 1
+    if kill -0 "$PROXY_PID" 2>/dev/null; then
+      ok "Proxy server restarted (PID: $PROXY_PID)"
+    else
+      err "Proxy restart failed. Check $PROXY_LOG"
+      tail -20 "$PROXY_LOG"
+      cleanup
+      exit 1
+    fi
   fi
   
   # Check if Expo is still running

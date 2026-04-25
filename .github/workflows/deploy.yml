@@ -36,7 +36,6 @@ jobs:
         env:
           NODE_ENV: production
           GITHUB_PAGES: true
-          EXPO_PUBLIC_AUTH_API_URL: ${{ vars.EXPO_PUBLIC_AUTH_API_URL }}
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -17,7 +17,32 @@ const EXPO_PORT = process.env.EXPO_PORT || 8083;
 
 // ── Auth helpers ──────────────────────────────────────────────
 const DEFAULT_DATA_DIR = IS_PRODUCTION ? '/var/data/aaramusic' : path.join(__dirname, '..', '.data');
-const DATA_DIR = process.env.DATA_DIR || DEFAULT_DATA_DIR;
+const REQUESTED_DATA_DIR = process.env.DATA_DIR || DEFAULT_DATA_DIR;
+const LOCAL_FALLBACK_DATA_DIR = path.join(__dirname, '..', '.data');
+
+function selectDataDir() {
+  const candidates = [REQUESTED_DATA_DIR];
+  if (!candidates.includes(LOCAL_FALLBACK_DATA_DIR)) {
+    candidates.push(LOCAL_FALLBACK_DATA_DIR);
+  }
+
+  for (const dir of candidates) {
+    try {
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.accessSync(dir, fs.constants.W_OK);
+      if (dir !== REQUESTED_DATA_DIR) {
+        console.warn(`[auth] Data dir not writable at ${REQUESTED_DATA_DIR}. Falling back to ${dir}`);
+      }
+      return dir;
+    } catch {
+      // Try next candidate path.
+    }
+  }
+
+  throw new Error(`No writable data directory available. Tried: ${candidates.join(', ')}`);
+}
+
+const DATA_DIR = selectDataDir();
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 const DEFAULT_ADMIN_NAME = process.env.DEFAULT_ADMIN_NAME || 'Aara Admin';
