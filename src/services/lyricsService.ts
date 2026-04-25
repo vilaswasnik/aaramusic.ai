@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-const WORKER_URL = 'https://aaramusic-proxy.vilaswasnik.workers.dev';
+const RENDER_BACKEND_URL = 'https://aaramusic-ai.onrender.com';
 
 const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
@@ -12,8 +12,8 @@ const getLyricsBase = (): string => {
         hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
       return `${origin}/lyrics`;
     }
-    // Production: use Cloudflare Worker proxy
-    return `${WORKER_URL}/lyrics`;
+    // Production (GitHub Pages): use Render backend proxy
+    return `${RENDER_BACKEND_URL}/lyrics`;
   }
   return 'http://localhost:8082/lyrics';
 };

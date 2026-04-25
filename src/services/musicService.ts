@@ -3,12 +3,12 @@ import { Platform } from 'react-native';
 import { Song, Album, Playlist } from '../types';
 import { mockSongs, mockPlaylists } from '../data/mockData';
 
-// Cloudflare Worker proxy for production (GitHub Pages)
-const WORKER_URL = 'https://aaramusic-proxy.vilaswasnik.workers.dev';
+// Render backend for production (GitHub Pages)
+const RENDER_BACKEND_URL = 'https://aaramusic-ai.onrender.com';
 
 // Determine the correct API base URL.
 // In dev, the proxy runs on the SAME port as the web app (8082), so we use window.location.origin.
-// In production the Cloudflare Worker handles it.
+// In production (GitHub Pages), use the Render backend.
 const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
 
@@ -19,8 +19,8 @@ const getApiBase = (): string => {
         hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
       return `${origin}/api`;
     }
-    // Production: use Cloudflare Worker proxy
-    return `${WORKER_URL}/api`;
+    // Production (GitHub Pages): use Render backend proxy
+    return `${RENDER_BACKEND_URL}/api`;
   }
   return 'http://localhost:8082/api';
 };
@@ -36,7 +36,7 @@ const getAudioProxyBase = (): string => {
       hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
     return origin;
   }
-  return WORKER_URL;
+  return RENDER_BACKEND_URL;
 };
 
 const AUDIO_PROXY_BASE = getAudioProxyBase();
