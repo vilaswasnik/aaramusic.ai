@@ -8,11 +8,13 @@ const getLyricsBase = (): string => {
 
   if (typeof window !== 'undefined') {
     const { hostname, origin } = window.location;
+    // Localhost, Codespace dev, or Render deployments: use same-origin proxy
     if (hostname === 'localhost' || hostname === '127.0.0.1' ||
-        hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+        hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev') ||
+        hostname.endsWith('.onrender.com')) {
       return `${origin}/lyrics`;
     }
-    // Production: use Cloudflare Worker proxy
+    // Static hosts (GitHub Pages etc.): use Cloudflare Worker proxy
     return `${WORKER_URL}/lyrics`;
   }
   return 'http://localhost:8082/lyrics';
@@ -95,9 +97,15 @@ export const searchKaraokeVersion = async (
     const getApiBase = (): string => {
       if (Platform.OS !== 'web') return 'https://api.deezer.com';
       if (typeof window !== 'undefined') {
-        return `${window.location.origin}/api`;
+        const { hostname, origin } = window.location;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' ||
+            hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev') ||
+            hostname.endsWith('.onrender.com')) {
+          return `${origin}/api`;
+        }
+        return `${WORKER_URL}/api`;
       }
-      return 'http://localhost:3001/api';
+      return 'http://localhost:8082/api';
     };
 
     const base = getApiBase();

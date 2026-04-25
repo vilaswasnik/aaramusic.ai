@@ -8,18 +8,20 @@ const WORKER_URL = 'https://aaramusic-proxy.vilaswasnik.workers.dev';
 
 // Determine the correct API base URL.
 // In dev, the proxy runs on the SAME port as the web app (8082), so we use window.location.origin.
-// In production the Cloudflare Worker handles it.
+// On Render the Express server handles /api directly.
+// On GitHub Pages the Cloudflare Worker handles it.
 const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
 
   if (typeof window !== 'undefined') {
     const { hostname, origin } = window.location;
-    // Localhost or Codespace dev: proxy is co-located, use same origin
+    // Localhost, Codespace dev, or Render deployments: proxy is co-located, use same origin
     if (hostname === 'localhost' || hostname === '127.0.0.1' ||
-        hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+        hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev') ||
+        hostname.endsWith('.onrender.com')) {
       return `${origin}/api`;
     }
-    // Production: use Cloudflare Worker proxy
+    // Static hosts (GitHub Pages etc.): use Cloudflare Worker proxy
     return `${WORKER_URL}/api`;
   }
   return 'http://localhost:8082/api';
@@ -27,13 +29,16 @@ const getApiBase = (): string => {
 
 const DEEZER_API = getApiBase();
 
-// Audio proxy base — always the same origin as the app so no cross-port issues.
+// Audio proxy base — use same origin when a server-side proxy is available.
+// On Render the Express server handles /audio directly.
+// On GitHub Pages the Cloudflare Worker handles it.
 const getAudioProxyBase = (): string => {
   if (Platform.OS !== 'web') return '';
   if (typeof window === 'undefined') return 'http://localhost:8082';
   const { hostname, origin } = window.location;
   if (hostname === 'localhost' || hostname === '127.0.0.1' ||
-      hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+      hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev') ||
+      hostname.endsWith('.onrender.com')) {
     return origin;
   }
   return WORKER_URL;

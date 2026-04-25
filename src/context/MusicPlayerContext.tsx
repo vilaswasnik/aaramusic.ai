@@ -121,6 +121,9 @@ export const MusicPlayerProvider: React.FC<MusicPlayerProviderProps> = ({ childr
     const audio = document.createElement('audio') as HTMLAudioElement;
     audio.crossOrigin = 'anonymous';
     audio.preload = 'auto';
+    // playsInline is required for iOS Safari to play audio inline without fullscreen
+    audio.setAttribute('playsinline', '');
+    audio.setAttribute('webkit-playsinline', '');
     audio.style.display = 'none';
     // Appending to DOM helps some browsers grant autoplay permission
     document.body.appendChild(audio);
@@ -159,9 +162,11 @@ export const MusicPlayerProvider: React.FC<MusicPlayerProviderProps> = ({ childr
     if (playPromise !== undefined) {
       playPromise.catch((err) => {
         console.error('Web audio play() failed:', err);
-        // Try once more without crossOrigin restriction
+        // Try once more without crossOrigin — some CDN/proxy combinations
+        // reject the CORS preflight on retry, but the audio itself is accessible.
         audio.removeAttribute('crossorigin');
         audio.src = song.audioUrl;
+        audio.load();
         audio.play().catch((e) => console.error('Retry play() failed:', e));
       });
     }
