@@ -18,11 +18,20 @@ interface AuthContextType {
 }
 
 const TOKEN_KEY = 'aara_token';
+const DEFAULT_AUTH_API_URL = 'https://aaramusic.onrender.com';
 
 // Resolve the API base URL — works in both browser and native
 function getApiBase(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.host}`;
+    const { hostname, origin } = window.location;
+    const isLocalWeb = hostname === 'localhost' || hostname === '127.0.0.1' ||
+      hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev');
+
+    if (isLocalWeb) {
+      return origin;
+    }
+
+    return process.env.EXPO_PUBLIC_AUTH_API_URL || DEFAULT_AUTH_API_URL;
   }
   return 'http://localhost:8082';
 }
@@ -31,9 +40,22 @@ async function authFetch(path: string, options: RequestInit = {}) {
   const base = getApiBase();
   const res = await fetch(`${base}${path}`, {
     ...options,
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
   });
-  const data = await res.json();
+
+  const contentType = res.headers.get('content-type') || '';
+  const bodyText = await res.text();
+  const isJson = contentType.includes('application/json');
+  const data = isJson && bodyText ? JSON.parse(bodyText) : null;
+
+  if (!isJson) {
+    throw new Error('Authentication service is unavailable. Please try again later.');
+  }
+
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
 }

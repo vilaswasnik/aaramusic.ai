@@ -20,6 +20,9 @@ const DEFAULT_DATA_DIR = IS_PRODUCTION ? '/var/data/aaramusic' : path.join(__dir
 const DATA_DIR = process.env.DATA_DIR || DEFAULT_DATA_DIR;
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+const DEFAULT_ADMIN_NAME = process.env.DEFAULT_ADMIN_NAME || 'Aara Admin';
+const DEFAULT_ADMIN_EMAIL = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@aaramusic.ai').toLowerCase().trim();
+const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'AaraVero%&12345';
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -34,6 +37,21 @@ function writeJSON(file, data) {
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + 'aaramusic_salt').digest('hex');
 }
+function ensureDefaultAdminUser() {
+  const users = readJSON(USERS_FILE);
+  if (users[DEFAULT_ADMIN_EMAIL]) return;
+
+  users[DEFAULT_ADMIN_EMAIL] = {
+    id: 'admin',
+    name: DEFAULT_ADMIN_NAME,
+    email: DEFAULT_ADMIN_EMAIL,
+    role: 'admin',
+    password: hashPassword(DEFAULT_ADMIN_PASSWORD),
+  };
+  writeJSON(USERS_FILE, users);
+}
+
+ensureDefaultAdminUser();
 
 // ── Middleware ───────────────────────────────────────────────
 app.use(cors());
