@@ -108,27 +108,38 @@ The app opens full-screen with no browser chrome — identical to a native app i
 
 ## Architecture
 
-```
-Browser
-  └─► http://localhost:8081
-        │
-        ├── /health          →  Proxy status
-        ├── /api/*           →  Deezer REST API  (api.deezer.com)
-        ├── /audio?url=...   →  Deezer CDN mp3 stream (piped, supports Range)
-        ├── /lyrics/:a/:t    →  lyrics.ovh
-        └── /*               →  Expo Metro dev server (localhost:8082)
+### Development Flow
+
+```mermaid
+flowchart LR
+    B[Browser / Web App] --> P[Express Proxy<br/>APP_PORT default 8082]
+
+    P --> H[/health]
+    P --> AUTH[/auth/*]
+    P --> API[/api/*]
+    P --> AUDIO[/audio?url=...]
+    P --> LYRICS[/lyrics/:artist/:title]
+    P --> EXPO[Expo Metro Dev Server<br/>EXPO_PORT default 8083]
+
+    API --> DZ[Deezer REST API<br/>api.deezer.com]
+    AUDIO --> CDN[Deezer Preview CDN]
+    LYRICS --> LOVH[lyrics.ovh API]
+    AUTH --> JSON[(users.json + sessions.json)]
 ```
 
-All traffic goes through **one port (8081)** — no cross-origin issues in browsers or Codespaces.
+All browser requests go through one app origin in development, which avoids CORS issues for API and audio playback.
 
-### Production (Render)
+### Production Flow (Render)
 
-```
-Browser → Render (PORT env) → Express
-  ├── /api/*      →  Deezer API
-  ├── /audio      →  Deezer CDN stream
-  ├── /lyrics     →  lyrics.ovh
-  └── /*          →  Expo static web export (dist/)
+```mermaid
+flowchart LR
+    U[Browser] --> R[Render Web Service<br/>Express on PORT]
+
+    R --> RS[/api/*] --> DZ2[Deezer REST API]
+    R --> RA[/audio] --> CDN2[Deezer Preview CDN]
+    R --> RL[/lyrics/*] --> LOVH2[lyrics.ovh API]
+    R --> AU[/auth/*] --> JSON2[(Persistent data dir)]
+    R --> SPA[Serve dist/index.html + static assets]
 ```
 
 ---

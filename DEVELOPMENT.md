@@ -31,15 +31,44 @@
 ### State Management
 - **MusicPlayerContext**: Global music player state using React Context
 - Location: `src/context/MusicPlayerContext.tsx`
+- **AuthContext**: Session restore, login/signup/logout, and current user state
+- Location: `src/context/AuthContext.tsx`
 
 ### Navigation Structure
+```mermaid
+flowchart TD
+   A[AppNavigator] --> B{Authenticated?}
+   B -->|No| L[LoginScreen]
+   B -->|No + Sign Up| S[SignupScreen]
+   B -->|Yes| M[Main Tabs]
+
+   M --> H[Home]
+   M --> D[DJ Mix]
+   M --> K[Karaoke]
+   M --> LI[Library]
+
+   M --> P[Player Modal]
+   M --> DJM[DJMixer Modal]
+   M --> KP[KaraokePlayer Modal]
 ```
-AppNavigator (Stack)
-├── Main (Bottom Tabs)
-│   ├── Home
-│   ├── Search
-│   └── Library
-└── Player (Modal)
+
+### API + Playback Flow
+```mermaid
+flowchart LR
+   UI[Screen / Component] --> MS[musicService.ts]
+   MS --> PX[Express Proxy]
+
+   PX --> API[/api/* to Deezer]
+   PX --> AUD[/audio url proxy]
+   PX --> LYR[/lyrics/*]
+
+   API --> DZ[api.deezer.com]
+   AUD --> CDN[Deezer preview CDN]
+   LYR --> LO[lyrics.ovh]
+
+   UI --> MPC[MusicPlayerContext]
+   MPC --> WEB[HTML5 Audio engine web]
+   MPC --> NATIVE[expo-av engine native]
 ```
 
 ### Key Features
