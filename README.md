@@ -245,6 +245,15 @@ The workflow in `.github/workflows/deploy.yml`:
 - Deploys the static build to **GitHub Pages**
 - Deploys the Cloudflare Worker (requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets)
 
+### Do I still need Render if GitHub Pages is working?
+
+Yes, if you want full functionality.
+
+- **GitHub Pages + Actions only**: serves the static frontend (UI loads).
+- **Render (or another Node host)**: required for backend routes like `/api`, `/audio`, `/lyrics`, and `/auth`.
+
+If your URL opens but songs, lyrics, or login features fail, that means the static site is live but the backend is missing.
+
 > Note: GitHub Pages hosts the static build only. The audio proxy and Deezer API require the Node.js server — use Render for full functionality.
 
 ---

@@ -195,6 +195,11 @@ Edit `src/data/mockData.ts` to add more songs, playlists, or albums
 - Clear cache: `expo start -c`
 - Delete node_modules and reinstall: `rm -rf node_modules && npm install`
 
+### GitHub Pages works, do I still need Render?
+- If you only need the frontend to load, **no**.
+- If you need real app features (Deezer proxy, audio streaming proxy, lyrics, auth), **yes**.
+- GitHub Pages is static hosting; backend routes must run on Render or another Node.js server.
+
 ## 📚 Next Steps
 
 ### Recommended Features to Add
