@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 
-const RENDER_BACKEND_URL = 'https://aaramusic-ai.onrender.com';
+const RENDER_BACKEND_URL = 'https://aaramusic.onrender.com';
 
 const getLyricsBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.lyrics.ovh/v1';
@@ -95,9 +95,14 @@ export const searchKaraokeVersion = async (
     const getApiBase = (): string => {
       if (Platform.OS !== 'web') return 'https://api.deezer.com';
       if (typeof window !== 'undefined') {
-        return `${window.location.origin}/api`;
+        const { hostname, origin } = window.location;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' ||
+            hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
+          return `${origin}/api`;
+        }
+        return `${RENDER_BACKEND_URL}/api`;
       }
-      return 'http://localhost:3001/api';
+      return 'http://localhost:8082/api';
     };
 
     const base = getApiBase();

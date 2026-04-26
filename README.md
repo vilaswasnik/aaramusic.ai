@@ -41,14 +41,14 @@ npm install
 npm run web
 ```
 
-Open **http://localhost:8081** in your browser.  
+Open **http://localhost:8082** in your browser.  
 The `npm run web` command runs `start.sh` which handles everything automatically:
 
 1. Pre-flight checks (Node, deps, server file)
-2. Cleans up stale processes on ports 8081 / 8082
-3. Starts the proxy server on **port 8081** (API + audio + Expo forwarding)
-4. Makes port 8081 public (GitHub Codespaces only)
-5. Starts the Expo Metro dev server on **port 8082** (internal)
+2. Cleans up stale processes on ports 8082 / 8083
+3. Starts the proxy server on **port 8082** (API + audio + Expo forwarding)
+4. Makes port 8082 public (GitHub Codespaces only)
+5. Starts the Expo Metro dev server on **port 8083** (internal)
 6. Self-tests the songs API and audio proxy
 7. Prints the URL and keeps running
 
@@ -71,17 +71,17 @@ You can test the app on any phone or tablet right now using your browser — no 
 If running in **GitHub Codespaces**, the app is already publicly accessible:
 
 ```
-https://<your-codespace-name>-8081.app.github.dev
+https://<your-codespace-name>-8082.app.github.dev
 ```
 
 Find your URL by running:
 ```bash
-echo "https://${CODESPACE_NAME}-8081.app.github.dev"
+echo "https://${CODESPACE_NAME}-8082.app.github.dev"
 ```
 
 Or generate a QR code to scan with your phone:
 ```bash
-npx qrcode-terminal "https://${CODESPACE_NAME}-8081.app.github.dev"
+npx qrcode-terminal "https://${CODESPACE_NAME}-8082.app.github.dev"
 ```
 
 ### Step 2 — Open in mobile browser

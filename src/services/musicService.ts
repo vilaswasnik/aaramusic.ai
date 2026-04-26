@@ -4,7 +4,7 @@ import { Song, Album, Playlist } from '../types';
 import { mockSongs, mockPlaylists } from '../data/mockData';
 
 // Render backend for production (GitHub Pages)
-const RENDER_BACKEND_URL = 'https://aaramusic-ai.onrender.com';
+const RENDER_BACKEND_URL = 'https://aaramusic.onrender.com';
 
 // Determine the correct API base URL.
 // In dev, the proxy runs on the SAME port as the web app (8082), so we use window.location.origin.
