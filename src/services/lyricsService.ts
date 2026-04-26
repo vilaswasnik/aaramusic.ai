@@ -12,7 +12,7 @@ const getLyricsBase = (): string => {
         hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
       return `${origin}/lyrics`;
     }
-    // Production (GitHub Pages): use Render backend proxy
+    // Render or GitHub Pages: use Render backend proxy
     return `${RENDER_BACKEND_URL}/lyrics`;
   }
   return 'http://localhost:8082/lyrics';

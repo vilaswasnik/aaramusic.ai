@@ -35,6 +35,12 @@ function getApiBase(): string {
       return origin;
     }
 
+    // Render backend (detect by hostname)
+    if (hostname === 'aaramusic-ai.onrender.com' || hostname.endsWith('.onrender.com')) {
+      return origin;
+    }
+
+    // GitHub Pages (use Render backend via env var)
     return process.env.EXPO_PUBLIC_AUTH_API_URL || '';
   }
   return 'http://localhost:8082';

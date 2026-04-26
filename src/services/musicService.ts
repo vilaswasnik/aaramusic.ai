@@ -8,7 +8,7 @@ const RENDER_BACKEND_URL = 'https://aaramusic-ai.onrender.com';
 
 // Determine the correct API base URL.
 // In dev, the proxy runs on the SAME port as the web app (8082), so we use window.location.origin.
-// In production (GitHub Pages), use the Render backend.
+// In production (GitHub Pages or Render), use the Render backend.
 const getApiBase = (): string => {
   if (Platform.OS !== 'web') return 'https://api.deezer.com';
 
@@ -19,7 +19,7 @@ const getApiBase = (): string => {
         hostname.endsWith('.app.github.dev') || hostname.endsWith('.preview.app.github.dev')) {
       return `${origin}/api`;
     }
-    // Production (GitHub Pages): use Render backend proxy
+    // Render or GitHub Pages: use Render backend proxy
     return `${RENDER_BACKEND_URL}/api`;
   }
   return 'http://localhost:8082/api';
