@@ -47,7 +47,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 const DEFAULT_ADMIN_NAME = process.env.DEFAULT_ADMIN_NAME || 'Aara Admin';
 const DEFAULT_ADMIN_EMAIL = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@aaramusic.ai').toLowerCase().trim();
-const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'AaraVero%&12345';
+const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || '';
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -65,6 +65,10 @@ function hashPassword(password) {
 function ensureDefaultAdminUser() {
   const users = readJSON(USERS_FILE);
   if (users[DEFAULT_ADMIN_EMAIL]) return;
+  if (!DEFAULT_ADMIN_PASSWORD) {
+    console.warn('[auth] DEFAULT_ADMIN_PASSWORD is not set — skipping default admin creation. Set it in the environment to seed the admin account.');
+    return;
+  }
 
   users[DEFAULT_ADMIN_EMAIL] = {
     id: 'admin',
