@@ -274,7 +274,4 @@ No API keys are needed for Deezer — the public API is used directly via the pr
 
 ## License
 
-App URL: https://organic-giggle-9qqwqrv9j6xcx6j5-8082.app.github.dev
-
-Start: bash start.sh
-Stop: bash stop.sh
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
