@@ -9,15 +9,15 @@ bash start.sh
 That's it! The app will:
 - ✅ Check all dependencies
 - ✅ Kill any stale processes  
-- ✅ Start proxy server (port 8081)
-- ✅ Start Expo dev server (port 8082)
+- ✅ Start proxy server (port 8082)
+- ✅ Start Expo dev server (port 8083)
 - ✅ Run health checks
 - ✅ Monitor services continuously
 
 ## URLs
 
-- **Local**: http://localhost:8081
-- **Public** (Codespaces): https://organic-giggle-9qqwqrv9j6xcx6j5-8081.app.github.dev
+- **Local**: http://localhost:8082
+- **Public** (Codespaces): https://<codespace-name>-8082.app.github.dev
 
 ## Stop the App
 
@@ -66,8 +66,8 @@ tail -f .logs/expo.log     # Expo/Metro bundler logs
 
 ### Manual process cleanup:
 ```bash
-lsof -ti :8081 | xargs kill -9   # Kill port 8081
 lsof -ti :8082 | xargs kill -9   # Kill port 8082
+lsof -ti :8083 | xargs kill -9   # Kill port 8083
 pkill -9 -f "server/proxy.js"    # Kill proxy by name
 pkill -9 -f "expo start"         # Kill Expo by name
 ```

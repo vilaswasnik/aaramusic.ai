@@ -4,10 +4,10 @@
 #
 #  What this does:
 #    1. Pre-flight checks  (node, npm deps, proxy file, disk space)
-#    2. Kill stale processes on ports 8081 / 8082
-#    3. Start proxy  →  port 8081 (API + audio streaming + Expo forward)
-#    4. Make port 8081 public  (Codespaces only)
-#    5. Start Expo dev server  →  port 8082 (internal)
+#    2. Kill stale processes on ports 8082 / 8083
+#    3. Start proxy  →  port 8082 (API + audio streaming + Expo forward)
+#    4. Make port 8082 public  (Codespaces only)
+#    5. Start Expo dev server  →  port 8083 (internal)
 #    6. Self-test: verify songs API & audio proxy are responding
 #    7. Print the URL and keep running; Ctrl+C stops everything cleanly
 #

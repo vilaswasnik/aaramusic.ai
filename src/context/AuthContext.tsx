@@ -36,7 +36,7 @@ function getApiBase(): string {
     }
 
     // Render backend (detect by hostname)
-    if (hostname === 'aaramusic-ai.onrender.com' || hostname.endsWith('.onrender.com')) {
+    if (hostname.endsWith('.onrender.com')) {
       return origin;
     }
 

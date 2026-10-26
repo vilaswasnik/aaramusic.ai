@@ -18,4 +18,4 @@ services:
       - key: DATA_DIR
         value: /var/data/aaramusic
       - key: EXPO_PUBLIC_AUTH_API_URL
-        value: https://aaramusic-ai.onrender.com
+        value: https://aaramusic.onrender.com
